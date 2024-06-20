@@ -23,7 +23,7 @@ window = sg.Window('Video Player', layout, finalize=True)
 cwd = os.path.join(os.getcwd(), 'Video_Media')
 
 # Define the file names
-video_file_name = 'CarSysML.mp4'
+video_file_name = 'Car SysML.mp4'
 audio_file_name = 'Car_SysML_audio.wav'
 
 # Construct the full file paths
