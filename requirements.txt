@@ -1,1 +1,7 @@
 # requirements.txt
+# This can be run by using the command pip install -r requirements.txt
+pytube
+PySimpleGUI
+bcrypt
+pygame
+moviepy
