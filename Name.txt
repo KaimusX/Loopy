@@ -2,3 +2,4 @@
 # Andrew Rupp
 # Jonah Dalton
 # Michael Lee
+# Diego Alvarez
