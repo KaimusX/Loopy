@@ -1,5 +1,6 @@
 from pytube import YouTube
 import hashlib
+import pandas as pd
 
 #downloads the video and puts it into the Video_Media folder
 def download_youtube_video(url, output_path='Video_Media'):
@@ -28,10 +29,6 @@ def calculate_md5(file_path):
 # Replace 'YOUR_VIDEO_URL' with the URL of the YouTube video you want to download
 video_url = 'https://youtu.be/f4FuR9fTKeo'
 video_path = download_youtube_video(video_url)
-print(calculate_md5(video_path))
 
-# video_url = 'https://www.youtube.com/watch?v=S3F1vZYpH8c'
-# video_url = 'https://www.youtube.com/watch?v=BT5mqjOyvK0'
-# video_url = 'https://www.youtube.com/watch?v=AH5xSq3mKfQ'
-# video_url = 'https://www.youtube.com/watch?v=phABhg_Um2E'
-# video_url = https://www.youtube.com/watch?v=Xbe1LuXzrKU'
+# Calculate the MD5 hash of the downloaded video
+md5Hash = calculate_md5(video_path)
