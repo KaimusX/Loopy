@@ -59,7 +59,7 @@ To install Loopy, follow these steps:
 ### Video Player Functions
 Control video playback using the following functions:
 //update when done
-```
+
 ### Security
 //update when done
 
