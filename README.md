@@ -82,16 +82,16 @@ We welcome contributions from the community! To contribute to Loopy, follow thes
 Loopy is licensed under the MIT License. See the `LICENSE` file for more information.
 
 ## Names
-    Luis Franco
-    Andrew Rupp
-    Jonah Dalton
-    Michael Lee
-    Diego Alvarez
-    Quynh Nhu Dang
-    Ramy Rozario
-    Kaleigh Powell
-    Natasha Menon
-    David Seger
+     Luis Franco
+     Andrew Rupp
+     Jonah Dalton
+     Michael Lee
+     Diego Alvarez
+     Quynh Nhu Dang
+     Ramy Rozario
+     Kaleigh Powell
+     Natasha Menon
+     David Seger
 ---
 
 Thank you for using Loopy! We hope it enhances your video management experience.
