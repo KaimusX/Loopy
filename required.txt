@@ -1,0 +1,5 @@
+pip install pytube
+pip install PySimpleGUI
+pip install bcrypt
+pip install pygame
+pip install moviepy.editor
