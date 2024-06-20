@@ -19,7 +19,7 @@ window = sg.Window('Video Player', layout, finalize=True)
 
 # Set up the video file using a dynamic path: Made by Jonah Dalton on 6/20/2024
 # Get the current working directory
-cwd = os.getcwd()
+cwd = os.path.join(os.getcwd(), 'Video_Media')
 
 # Define the file names
 video_file_name = 'CarSysML.mp4'
