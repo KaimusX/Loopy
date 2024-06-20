@@ -17,12 +17,20 @@ layout = [
 # Create the window
 window = sg.Window('Video Player', layout, finalize=True)
 
-# Load video using moviepy
-video_path = 'C:\\Users\\kalei\\Documents\\1LOOPY\\Loopy\\CarSysML.mp4'     #You will need to hardcode your file path
-video = VideoFileClip(video_path)
+# Set up the video file using a dynamic path: Made by Jonah Dalton on 6/20/2024
+# Get the current working directory
+cwd = os.getcwd()
 
-# Extract and save audio as a separate file
-audio_path = 'C:\\Users\\kalei\\Documents\\1LOOPY\\Loopy\\Car_SysML_audio.wav'
+# Define the file names
+video_file_name = 'CarSysML.mp4'
+audio_file_name = 'Car_SysML_audio.wav'
+
+# Construct the full file paths
+video_path = os.path.join(cwd, video_file_name)
+audio_path = os.path.join(cwd, audio_file_name)
+
+#run with the video file in the same directory as the script
+video = VideoFileClip(video_path)
 video.audio.write_audiofile(audio_path)
 
 # Set up pygame screen
