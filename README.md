@@ -87,3 +87,13 @@ Loopy is licensed under the MIT License. See the `LICENSE` file for more informa
 ---
 
 Thank you for using Loopy! We hope it enhances your video management experience.
+
+
+## Organizational Structure
+
+
+![IMG_6691](https://github.com/KaimusX/Loopy/assets/87718231/8ed4bc86-5366-4d70-a5c3-10a6f7df3b5c)
+![IMG_6690](https://github.com/KaimusX/Loopy/assets/87718231/2bca95e7-090d-419e-9a94-fcf33b92738f)
+![IMG_6689](https://github.com/KaimusX/Loopy/assets/87718231/5499b06b-68e5-4dfd-97f4-e47a22325527)
+![IMG_6688](https://github.com/KaimusX/Loopy/assets/87718231/6db54a7d-d1ae-4f08-aca0-bf9d3b37eca5)
+
