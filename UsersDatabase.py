@@ -1,0 +1,1 @@
+# Will be used to manage access and checks against the SQL that stores user information.
