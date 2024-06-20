@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import pygame
-from moviepy.editor import VideoFileClip        #INSTALL USING --> pip install moviepy
+from moviepy.editor import VideoFileClip        #INSTALL USING --> pip install -r requirements.txt
 import os
 
 # Initialize pygame

@@ -26,9 +26,15 @@ def calculate_md5(file_path):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-# Replace 'YOUR_VIDEO_URL' with the URL of the YouTube video you want to download
+# Download the video and get the file path
 video_url = 'https://youtu.be/f4FuR9fTKeo'
 video_path = download_youtube_video(video_url)
 
 # Calculate the MD5 hash of the downloaded video
 md5Hash = calculate_md5(video_path)
+
+# Create a DataFrame with the file path and MD5 hash
+df = pd.DataFrame({'File_Path': [video_path], 'MD5_Hash': [md5Hash]})
+
+# Save the DataFrame to a CSV file
+df.to_csv('file_info.csv', index=False)
