@@ -18,7 +18,8 @@ layout = [
 window = sg.Window('Video Player', layout, finalize=True)
 
 # Set up the video file using a dynamic path: Made by Jonah Dalton on 6/20/2024
-# Get the current working directory
+
+# Get the current working directory and look for the video file in the 'Video_Media' folder
 cwd = os.path.join(os.getcwd(), 'Video_Media')
 
 # Define the file names
