@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import pygame
-from moviepy.editor import VideoFileClip
+from moviepy.editor import VideoFileClip        #INSTALL USING --> pip install moviepy
 import os
 
 # Initialize pygame
@@ -18,11 +18,11 @@ layout = [
 window = sg.Window('Video Player', layout, finalize=True)
 
 # Load video using moviepy
-video_path = 'C:\\Users\\Kari.Lippert\\Videos\\CarSysML.mp4'
+video_path = 'C:\\Users\\kalei\\Documents\\1LOOPY\\Loopy\\CarSysML.mp4'     #You will need to hardcode your file path
 video = VideoFileClip(video_path)
 
 # Extract and save audio as a separate file
-audio_path = 'C:\\Users\\Kari.Lippert\\Videos\\CarSysML_audio.wav'
+audio_path = 'C:\\Users\\kalei\\Documents\\1LOOPY\\Loopy\\Car_SysML_audio.wav'
 video.audio.write_audiofile(audio_path)
 
 # Set up pygame screen
