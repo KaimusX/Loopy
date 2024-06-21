@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import pygame
-from moviepy.editor import VideoFileClip        #INSTALL USING --> pip install -r requirements.txt
+from moviepy.editor import VideoFileClip        #INSTALL USING --> pip install moviepy
 import os
 
 # Initialize pygame
@@ -17,19 +17,19 @@ layout = [
 # Create the window
 window = sg.Window('Video Player', layout, finalize=True)
 
+
 # Set up the video file using a dynamic path: Made by Jonah Dalton on 6/20/2024
 
 # Get the current working directory and look for the video file in the 'Video_Media' folder
-cwdV = os.path.join(os.getcwd(), 'Video_Media')
-cwdA = os.path.join(os.getcwd(), 'Audio_Media')
+cwd = os.path.join(os.getcwd(), 'Video_Media')
 
 # Define the file names
-video_file_name = 'Car SysML.mp4'
+video_file_name = 'CarSysML.mp4'
 audio_file_name = 'Car_SysML_audio.wav'
 
 # Construct the full file paths
-video_path = os.path.join(cwdV, video_file_name)
-audio_path = os.path.join(cwdA, audio_file_name)
+video_path = os.path.join(cwd, video_file_name)
+audio_path = os.path.join(cwd, audio_file_name)
 
 #run with the video file in the same directory as the script
 video = VideoFileClip(video_path)
@@ -48,22 +48,16 @@ playing = False
 
 # Function to update video frame in the GUI
 def update_frame():
-    frame = video.get_frame(video.reader.pos / video.fps)
+    audio_pos = pygame.mixer.music.get_pos() / 1000.0
+    frame = video.get_frame(audio_pos)
     frame = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
     screen.blit(frame, (0, 0))
     pygame.display.flip()
-    return frame
-
-#added this code in order to ensure the video does not unessarily speed up past its set FPS
-# Calculate the frame update interval in milliseconds
-frame_update_interval = 1000 / video.fps  # video.fps gives the frames per second
-
-# Initialize a variable to track the time of the last frame update
-last_frame_update_time = pygame.time.get_ticks()
+    #return frame
 
 # Main loop
 while True:
-    event, values = window.read(timeout=10)
+    event, values = window.read(timeout=int(1000/video.fps))
     
     if event == sg.WINDOW_CLOSED or event == 'Exit':
         break
@@ -76,19 +70,13 @@ while True:
     elif event == 'Stop':
         pygame.mixer.music.stop()
         playing = False
-    
-    # Get the current time in milliseconds since pygame was initialized    
-    current_time = pygame.time.get_ticks()
-    
-    # Check if the video is currently playing and if the time elapsed since the last frame update
-    # is equal to or greater than the frame update interval calculated based on the video's FPS
-    if playing and (current_time - last_frame_update_time >= frame_update_interval):
+
+    if playing:
         frame = update_frame()
-        last_frame_update_time = current_time
        # imgbytes = pygame.image.tostring(frame, 'RGB')
        # window['-IMAGE-'].update(data=imgbytes)
 
 # Clean up
 window.close()
 pygame.quit()
-#os.remove(audio_path)  # Optionally remove the temporary audio file
+os.remove(audio_path)  # Optionally remove the temporary audio file
