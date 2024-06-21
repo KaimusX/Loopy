@@ -48,7 +48,9 @@ def find_audio_file(md5_hash):
                 return os.path.join(root, file)
     return None
 
+#Set font for buttons
 font = pygame.font.Font('freesansbold.ttf', 18)
+#Button class for buttons (DO NOT CHANGE ANYTHING INSIDE THIS WITHOUT TALKING TO KALEIGH)
 class Button():
     def __init__(self, scrn, text, x_pos, y_pos, enabled):
         self.text = text
@@ -76,7 +78,8 @@ class Button():
             return True
         else:
             return False
-    
+
+#Update the frames  
 def update_frame(video, scr):
     audio_pos = pygame.mixer.music.get_pos() / 1000.0
     frame = video.get_frame(audio_pos)
@@ -101,17 +104,21 @@ def play_video(audio_file, video_file):
         scrn = pygame.display.set_mode([width+200, height+200])
         pygame.display.set_caption('LOOPY Video Player')
         
+        #is video playing
         playing = False
+        #is loop running
         run = True
+        #is the next click a new press
         new_press = True
         
         # Main loop
         while run:
+            #initialize buttons
             startLoop = Button(scrn, 'Start Loop', 10, 400, True)
             playB = Button(scrn, 'Play', 10, 440, True)
             pauseB = Button(scrn, 'Pause', 10, 480, True)
             stopLoop = Button(scrn, 'Stop Loop', 10, 520, True)
-
+            
             if pygame.mouse.get_pressed()[0] and new_press:
                 new_press = False
             
@@ -132,6 +139,7 @@ def play_video(audio_file, video_file):
                 playing = False
             if stopLoop.check_click():
                 pygame.mixer.music.stop()
+                run = False
             
             pygame.display.flip()
             if playing:
