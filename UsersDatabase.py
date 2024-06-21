@@ -33,4 +33,5 @@ class UserAccount:
         df.to_csv('Database.csv', index=False)
 
 def main():
-    pass
+    UserAccount.createDataframe()
+    UserAccount.createUserDatabase()
