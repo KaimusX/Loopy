@@ -6,3 +6,4 @@ bcrypt
 pygame
 moviepy
 pandas
+regex
