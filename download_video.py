@@ -72,7 +72,7 @@ def add_video_hash_to_playlist(md5_hash):
     df.to_csv('playlists.csv', index=False)
 
 # Download the video and get the file path
-video_url = 'https://youtu.be/f4FuR9fTKeo'
+video_url = 'https://www.youtube.com/watch?v=ucZl6vQ_8Uo'
 video_path = download_youtube_video(video_url)
 
 #Break off the audio from the video
