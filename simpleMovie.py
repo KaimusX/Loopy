@@ -11,7 +11,7 @@ pygame.mixer.init()
 layout = [
     [sg.Text('LOOPY Video Player')],
     [sg.Image(filename='', key='-IMAGE-')],
-    [sg.Button('Play'), sg.Button('Pause'), sg.Button('Stop'), sg.Button('Exit')]
+    [sg.Button('Start Playlist'), sg.Button('Play'), sg.Button('Pause'), sg.Button('Stop'), sg.Button('Exit')]
 ]
 
 # Create the window
@@ -68,6 +68,9 @@ while True:
     elif event == 'Pause':
         pygame.mixer.music.pause()
         playing = False
+    elif event == 'Play':
+        pygame.mixer.music.unpause()
+        playing = False
     elif event == 'Stop':
         pygame.mixer.music.stop()
         playing = False
@@ -80,4 +83,4 @@ while True:
 # Clean up
 window.close()
 pygame.quit()
-os.remove(audio_path)  # Optionally remove the temporary audio file
+#os.remove(audio_path)  # Optionally remove the temporary audio file
