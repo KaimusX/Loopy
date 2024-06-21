@@ -33,13 +33,12 @@ playlist_file = os.path.join(cwd, 'playlists.csv')
 playlist = []
 with open(playlist_file, 'r') as file:
     reader = csv.reader(file)
+    header = next(reader)  # Extract the header row
     for row in reader:
         playlist.append(row)
 
-# Convert the playlist into a 3D array with proper columns and rows
-playlist_3d = []
-for i in range(0, len(playlist), 3):
-    playlist_3d.append(playlist[i:i+3])
+# Convert the playlist into a 3D array with proper columns and rows, excluding the header
+playlist_3d = [[row] for row in playlist]  # Wrap each data row in its own list
 
 # Function to find the video file based on MD5 hash
 def find_video_file(md5_hash):
@@ -115,5 +114,21 @@ def play_video(audio_file, video_file):
     else:
         print('Video or audio file not found for MD5 hash:', video_md5, audio_md5)
 
+def play_playlist(playlist_name):
+    # Find the playlist index based on the playlist name
+    for playlist_row in playlist_3d:
+        if playlist_row[0][0] == playlist_name:
+            print('Playing playlist:', playlist_row[0][0])
+            # Play each video in the selected playlist
+            for i in range(1, 11):
+                video_md5 = playlist_row[0][i + 2]
+                audio_md5 = playlist_row[0][i + 12]
+                print(audio_md5, video_md5)
+                if video_md5 and audio_md5:
+                    play_video(audio_md5, video_md5)
+                else:
+                    break
+    
+
 if __name__ == '__main__':
-    play_video(playlist_3d[0][1][13], playlist_3d[0][1][3])
+    play_playlist('John')
