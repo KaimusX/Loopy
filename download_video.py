@@ -1,6 +1,8 @@
 from pytube import YouTube
 import hashlib
 import pandas as pd
+from moviepy.editor import VideoFileClip
+import os
 
 #downloads the video and puts it into the Video_Media folder
 def download_youtube_video(url, output_path='Video_Media'):
@@ -18,7 +20,21 @@ def download_youtube_video(url, output_path='Video_Media'):
         return video_path
     except Exception as e:
         print(f'An error occurred: {e}')
-        
+                
+
+def break_off_Audio(irl, output_dir='Audio_Media'):  
+    # Extract the base name without extension and append .mp3
+    base_name = os.path.splitext(os.path.basename(irl))[0] + '_audio.wav'
+    output_path = os.path.join(output_dir, base_name)
+    
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Load the video file for editing
+    video = VideoFileClip(irl)
+    # Extract and save the audio file in the specified location
+    video.audio.write_audiofile(output_path)
+
 def calculate_md5(file_path):
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -59,9 +75,13 @@ def add_video_hash_to_playlist(md5_hash):
 video_url = 'https://youtu.be/f4FuR9fTKeo'
 video_path = download_youtube_video(video_url)
 
+#Break off the audio from the video
+#break_off_Audio(video_path)
+
 # Calculate the MD5 hash of the downloaded video
 md5Hash = calculate_md5(video_path)
 
+#add the video hash to the playlist
 add_video_hash_to_playlist(md5Hash)
 
 

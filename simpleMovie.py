@@ -54,6 +54,13 @@ def update_frame():
     pygame.display.flip()
     return frame
 
+#added this code in order to ensure the video does not unessarily speed up past its set FPS
+# Calculate the frame update interval in milliseconds
+frame_update_interval = 1000 / video.fps  # video.fps gives the frames per second
+
+# Initialize a variable to track the time of the last frame update
+last_frame_update_time = pygame.time.get_ticks()
+
 # Main loop
 while True:
     event, values = window.read(timeout=10)
@@ -69,9 +76,15 @@ while True:
     elif event == 'Stop':
         pygame.mixer.music.stop()
         playing = False
-
-    if playing:
+    
+    # Get the current time in milliseconds since pygame was initialized    
+    current_time = pygame.time.get_ticks()
+    
+    # Check if the video is currently playing and if the time elapsed since the last frame update
+    # is equal to or greater than the frame update interval calculated based on the video's FPS
+    if playing and (current_time - last_frame_update_time >= frame_update_interval):
         frame = update_frame()
+        last_frame_update_time = current_time
        # imgbytes = pygame.image.tostring(frame, 'RGB')
        # window['-IMAGE-'].update(data=imgbytes)
 
