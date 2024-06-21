@@ -5,3 +5,4 @@ PySimpleGUI
 bcrypt
 pygame
 moviepy
+pandas
