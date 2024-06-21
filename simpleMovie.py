@@ -120,14 +120,9 @@ def play_playlist(playlist_name):
         if playlist_row[0][0] == playlist_name:
             print('Playing playlist:', playlist_row[0][0])
             # Play each video in the selected playlist
-            for i in range(1, 11):
-                video_md5 = playlist_row[0][i + 2]
-                audio_md5 = playlist_row[0][i + 12]
-                print(audio_md5, video_md5)
-                if video_md5 and audio_md5:
-                    play_video(audio_md5, video_md5)
-                else:
-                    break
+            video_md5 = playlist_row[0][3]
+            audio_md5 = playlist_row[0][13]
+            play_video(audio_md5, video_md5)
     
 
 if __name__ == '__main__':
