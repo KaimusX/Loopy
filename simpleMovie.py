@@ -24,7 +24,7 @@ window = sg.Window('Video Player', layout, finalize=True)
 cwd = os.path.join(os.getcwd(), 'Video_Media')
 
 # Define the file names
-video_file_name = 'CarSysML.mp4'
+video_file_name = 'Car SysML.mp4'
 audio_file_name = 'Car_SysML_audio.wav'
 
 # Construct the full file paths
@@ -53,7 +53,14 @@ def update_frame():
     frame = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
     screen.blit(frame, (0, 0))
     pygame.display.flip()
-    #return frame
+    return frame
+
+#added this code in order to ensure the video does not unessarily speed up past its set FPS
+# Calculate the frame update interval in milliseconds
+frame_update_interval = 1000 / video.fps  # video.fps gives the frames per second
+
+# Initialize a variable to track the time of the last frame update
+last_frame_update_time = pygame.time.get_ticks()
 
 # Main loop
 while True:
@@ -73,6 +80,7 @@ while True:
 
     if playing:
         frame = update_frame()
+        last_frame_update_time = current_time
        # imgbytes = pygame.image.tostring(frame, 'RGB')
        # window['-IMAGE-'].update(data=imgbytes)
 

@@ -79,7 +79,7 @@ video_path = download_youtube_video(video_url)
 #break_off_Audio(video_path)
 
 # Calculate the MD5 hash of the downloaded video
-md5Hash = calculate_md5(video_path)
+#md5Hash = calculate_md5(video_path)
 
 #add the video hash to the playlist
 add_video_hash_to_playlist(md5Hash)
