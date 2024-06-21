@@ -55,12 +55,6 @@ def update_frame():
     pygame.display.flip()
     return frame
 
-#added this code in order to ensure the video does not unessarily speed up past its set FPS
-# Calculate the frame update interval in milliseconds
-frame_update_interval = 1000 / video.fps  # video.fps gives the frames per second
-
-# Initialize a variable to track the time of the last frame update
-last_frame_update_time = pygame.time.get_ticks()
 
 # Main loop
 while True:
@@ -80,7 +74,6 @@ while True:
 
     if playing:
         frame = update_frame()
-        last_frame_update_time = current_time
        # imgbytes = pygame.image.tostring(frame, 'RGB')
        # window['-IMAGE-'].update(data=imgbytes)
 
