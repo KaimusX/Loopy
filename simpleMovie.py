@@ -22,6 +22,7 @@ window = sg.Window('Video Player', layout, finalize=True)
 
 # Get the current working directory and look for the video file in the 'Video_Media' folder
 cwd = os.path.join(os.getcwd(), 'Video_Media')
+lwd = os.path.join(os.getcwd(), 'Audio_Media')
 
 # Define the file names
 video_file_name = 'Audio Video Sync Test.mp4'
@@ -29,11 +30,10 @@ audio_file_name = 'Audio Video Sync Test_audio.wav'
 
 # Construct the full file paths
 video_path = os.path.join(cwd, video_file_name)
-audio_path = os.path.join(cwd, audio_file_name)
+audio_path = os.path.join(lwd, audio_file_name)
 
 #run with the video file in the same directory as the script
 video = VideoFileClip(video_path)
-video.audio.write_audiofile(audio_path)
 
 # Set up pygame screen
 width, height = video.size
