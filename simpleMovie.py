@@ -2,10 +2,17 @@ import PySimpleGUI as sg
 import pygame
 from moviepy.editor import VideoFileClip        #INSTALL USING --> pip install moviepy
 import os
+import sys
 
 # Initialize pygame
 pygame.init()
 pygame.mixer.init()
+
+# Initialize sys and os
+if not sys.stdout:
+    sys.stdout = open(os.devnull, 'w')
+if not sys.stderr:
+    sys.stderr = open(os.devnull, 'w')
 
 # Define the layout of the GUI
 layout = [
