@@ -34,6 +34,7 @@ def break_off_Audio(irl, output_dir='Audio_Media'):
     video = VideoFileClip(irl)
     # Extract and save the audio file in the specified location
     video.audio.write_audiofile(output_path)
+    return output_path
 
 def calculate_md5(file_path):
     hash_md5 = hashlib.md5()
@@ -42,7 +43,7 @@ def calculate_md5(file_path):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-def add_video_hash_to_playlist(md5_hash):
+def add_video_hash_to_playlist(md5_hashVid, md5_hashAud):
     # Load the DataFrame from the CSV file
     df = pd.read_csv('playlists.csv')
 
@@ -60,10 +61,18 @@ def add_video_hash_to_playlist(md5_hash):
     # Iterate over the video slots and choose the first one that is empty
     for i in range(1, 11):
         video_slot = f'Video{i}'
+        audio_slot = f'Audio{i}'
+
         if pd.isnull(playlist_row[video_slot].values[0]):
             # Add the hash to the selected video slot
-            df.loc[df['PlayList_Name'] == playlist_name, video_slot] = md5_hash
+            df.loc[df['PlayList_Name'] == playlist_name, video_slot] = md5_hashVid
             print(f'Added video to {video_slot} in playlist {playlist_name}.')
+            break
+
+        if pd.isnull(playlist_row[audio_slot].values[0]):
+            # Add the hash to the selected audio slot
+            df.loc[df['PlayList_Name'] == playlist_name, audio_slot] = md5_hashAud
+            print(f'Added audio to {audio_slot} in playlist {playlist_name}.')
             break
     else:
         print('All video slots are full.')
@@ -76,13 +85,13 @@ video_url = 'https://www.youtube.com/watch?v=ucZl6vQ_8Uo'
 video_path = download_youtube_video(video_url)
 
 #Break off the audio from the video
-break_off_Audio(video_path)
-
+audio_path = break_off_Audio(video_path)
 #Calculate the MD5 hash of the downloaded video
-md5Hash = calculate_md5(video_path)
+md5HashVid = calculate_md5(video_path)
+md5HashAud = calculate_md5(audio_path)
 
 #add the video hash to the playlist
-add_video_hash_to_playlist(md5Hash)
+add_video_hash_to_playlist(md5HashVid, md5HashAud)
 
 
 
