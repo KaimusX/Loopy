@@ -10,17 +10,22 @@ class UserAccount:
         df = pd.DataFrame({'Username': [], 'Displayname': [], 'Name': [], 'Email': [], 'Role': [], 'Password': []})
         df.to_csv('Database.csv', index=False)
 
-    def createUserDatabase():
+    def createUserRow():
         # Loading the dataframe
-        df = pd.read_csc('Database.csv')
+        df = pd.read_csv('Database.csv')
 
         # Temporary inputs until we have a front end to submit information through
-        Username = input()
-        DisplayName = input()
-        Name = input()
-        Email = input()
-        Role = input()
-        Pass = input()
+        Username = 'invalid'
+        while Username == 'invalid':
+            Username = input("Username: ")
+            for x in ['&','?']:
+                if x in Username:
+                    Username = 'invalid'
+        DisplayName = input("Display name: ")
+        Name = input("Full name: ")
+        Email = input("Email address: ")
+        Role = input("Role: ")
+        Pass = input("Password: ")
 
         # Temproary hash skip, until hashing is implemented
         HashedPass = Pass
@@ -32,5 +37,13 @@ class UserAccount:
         df = df._append(newRow, ignore_index=True)
         df.to_csv('Database.csv', index=False)
 
+    def checkUser():
+        Username = input("Enter username: ")
+        Password = input("Enter password: ")
+
 def main():
-    pass
+    UserAccount.createDataframe()
+    UserAccount.createUserRow()
+
+if __name__ == "__main__":
+    main()
