@@ -69,7 +69,7 @@ while True:
     
     if event == sg.WINDOW_CLOSED or event == 'Exit':
         break
-    elif event == 'Play':
+    elif event == 'Start Playlist':
         pygame.mixer.music.play()
         playing = True
     elif event == 'Pause':
@@ -77,7 +77,7 @@ while True:
         playing = False
     elif event == 'Play':
         pygame.mixer.music.unpause()
-        playing = False
+        playing = True
     elif event == 'Stop':
         pygame.mixer.music.stop()
         playing = False
