@@ -61,13 +61,16 @@ def add_video_hash_to_playlist(md5_hashVid, md5_hashAud):
     # Iterate over the video slots and choose the first one that is empty
     for i in range(1, 11):
         video_slot = f'Video{i}'
-        audio_slot = f'Audio{i}'
+
 
         if pd.isnull(playlist_row[video_slot].values[0]):
             # Add the hash to the selected video slot
             df.loc[df['PlayList_Name'] == playlist_name, video_slot] = md5_hashVid
             print(f'Added video to {video_slot} in playlist {playlist_name}.')
             break
+        
+    for i in range(1, 11):
+        audio_slot = f'Audio{i}'
 
         if pd.isnull(playlist_row[audio_slot].values[0]):
             # Add the hash to the selected audio slot
@@ -89,6 +92,7 @@ audio_path = break_off_Audio(video_path)
 #Calculate the MD5 hash of the downloaded video
 md5HashVid = calculate_md5(video_path)
 md5HashAud = calculate_md5(audio_path)
+
 
 #add the video hash to the playlist
 add_video_hash_to_playlist(md5HashVid, md5HashAud)
