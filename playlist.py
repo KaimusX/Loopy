@@ -21,7 +21,8 @@ class Playlist:
     
 def main():
     #this should only be run once
-    Playlist.create_dataframe()
+    #MPlaylist.create_dataframe()
+    
     Playlist.create_playlist()
 
 if __name__ == "__main__":
