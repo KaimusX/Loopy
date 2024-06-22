@@ -1,52 +1,15 @@
 import PySimpleGUI as sg
 import pygame
-from moviepy.editor import *        #INSTALL USING --> pip install moviepy
+from moviepy.editor import *     
 import os
 import csv
 import hashlib
 import sys
+import mergeVid as mv
 
 # Initialize pygame
 pygame.init()
 pygame.mixer.init()
-
-# Initialize sys and os
-if not sys.stdout:
-    sys.stdout = open(os.devnull, 'w')
-if not sys.stderr:
-    sys.stderr = open(os.devnull, 'w')
-
-#reading the playlist and running the correct audio. By Jonah Dalton on 6/21/2024
-# Read the playlist from the playlist.csv file
-cwd = os.getcwd()
-playlist_file = os.path.join(cwd, 'playlists.csv')
-playlist = []
-with open(playlist_file, 'r') as file:
-    reader = csv.reader(file)
-    header = next(reader)  # Extract the header row
-    for row in reader:
-        playlist.append(row)
-
-# Convert the playlist into a 3D array with proper columns and rows, excluding the header
-playlist_3d = [[row] for row in playlist]  # Wrap each data row in its own list
-
-# Function to find the video file based on MD5 hash
-def find_video_file(md5_hash):
-    video_media_path = os.path.join(cwd, 'Video_Media')
-    for root, dirs, files in os.walk(video_media_path):
-        for file in files:
-            if hashlib.md5(open(os.path.join(root, file), 'rb').read()).hexdigest() == md5_hash:
-                return os.path.join(root, file)
-    return None
-
-# Function to find the audio file based on MD5 hash
-def find_audio_file(md5_hash):
-    audio_media_path = os.path.join(cwd, 'Audio_Media')
-    for root, dirs, files in os.walk(audio_media_path):
-        for file in files:
-            if hashlib.md5(open(os.path.join(root, file), 'rb').read()).hexdigest() == md5_hash:
-                return os.path.join(root, file)
-    return None
 
 #Set font for buttons
 font = pygame.font.Font('freesansbold.ttf', 18)
@@ -88,15 +51,12 @@ def update_frame(video, scr):
     pygame.display.flip()
     return frame
 
+
 # Function to play a video from the playlist
-def play_video(audio_file, video_file):
-    
-    video_path = find_video_file(video_file)
-    audio_path = find_audio_file(audio_file)
-    
-    if video_file is not None and audio_file is not None:
-        video = VideoFileClip(video_path)
-        pygame.mixer.music.load(audio_path)
+def play_video(VidandAudPath):
+    if VidandAudPath is not None:
+        video = VideoFileClip(VidandAudPath[0])
+        pygame.mixer.music.load(VidandAudPath[1])
         
         
         # Update the screen size
@@ -150,21 +110,15 @@ def play_video(audio_file, video_file):
         pygame.mixer.music.unload()
         pygame.quit()
         video.close()
+        #delete temp playlist
+        os.remove(VidandAudPath[0])
+        os.remove(VidandAudPath[1])
     else:
         print('Video or audio file not found for MD5 hash:', video_md5, audio_md5)
 
 
-
-def play_playlist(playlist_name):
-    # Find the playlist index based on the playlist name
-    for playlist_row in playlist_3d:
-        if playlist_row[0][0] == playlist_name:
-            print('Playing playlist:', playlist_row[0][0])
-            # Play each video in the selected playlist
-            video_md5 = playlist_row[0][3]
-            audio_md5 = playlist_row[0][13]
-            play_video(audio_md5, video_md5)
-    
-
 if __name__ == '__main__':
-    play_playlist('John')
+    #calling functions form the mergeVid class in mergeVid.py
+    merge = mv.mergeVid()
+    play_video(merge.build_playlist("John"))
+    
