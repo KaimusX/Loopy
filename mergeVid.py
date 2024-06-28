@@ -39,9 +39,11 @@ class mergeVid:
             if playlist_row[0][0] == playlist_name:
                 print('Building ', playlist_row[0][0], " playlist")
                 # validate and add each video in the playlist
-                for i in range(3, 13, 2):
+                for i in range(3, len(playlist_row[0])):
                     video_md5 = playlist_row[0][i]
+                    print(video_md5)
                     audio_md5 = playlist_row[0][i+10]
+                    print(audio_md5)
                     video_path = self.find_video_file(video_md5)
                     audio_path = self.find_audio_file(audio_md5)
                     if video_path is not None and audio_path is not None:
@@ -50,6 +52,7 @@ class mergeVid:
                         print('Video or audio file not found for MD5 hash:', video_md5, audio_md5)
                     if video_path is None or audio_path is None:
                         break
+        print(video_audio_pairs)
         self.concat_videos(video_audio_pairs)
         return os.path.join(self.cwd, "my_concatenation.mp4"), os.path.join(self.cwd, "my_concatenation_audio.mp3")
     

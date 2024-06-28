@@ -1,5 +1,7 @@
 import PySimpleGUI as sg
-import re #import using -> pip install regex
+import re 
+import download_video as dv
+import playlist as pl
 
 # Authors: Shari Hoch and Luis Franco
 # Timestamp: 06/21/2024 1:26PM
@@ -70,17 +72,14 @@ def create_playlist():
                     video_entries.append(('Local', path))
                      # If a playlist entry is not empty and a directory pathway, append the entry
 
-
             if not error:
                 # Handle the collected data here
-
-                print()
-                print(f'Playlist Name: {playlist_name}')
-                print()
-                print('Video Entries:')
-                print()
+                playlist_database = pl.Playlist()
+                playlist_database.create_playlist(playlist_name)
                 for entry in video_entries:
-                    print(entry)
-                break
-
-    window.close()
+                    source, url_or_path = entry
+                    dv.fileDownloader(url_or_path, source, playlist_name)
+        window.close()
+    
+if __name__ == "__main__":
+    create_playlist()

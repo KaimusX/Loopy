@@ -120,5 +120,6 @@ def play_video(VidandAudPath):
 if __name__ == '__main__':
     #calling functions form the mergeVid class in mergeVid.py
     merge = mv.mergeVid()
-    play_video(merge.build_playlist("John"))
+    #make this selectable instead of a set playlist name later
+    play_video(merge.build_playlist("Testing Playlist"))
     
