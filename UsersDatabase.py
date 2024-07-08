@@ -56,78 +56,76 @@ class UserAccount:
         df = df._append(newRow, ignore_index=True)
         df.to_csv('Database.csv', index=False)
 
+            
+        #security_questions = [
+        #        "What was your childhood nickname?",
+        #        "In what city did you meet your spouse/significant other?",
+        #        "What is the name of your favorite childhood friend?",
+        #        "What street did you live on in third grade?",
+        #        "What is your oldest sibling's birthday month and year?",
+        #        "What is the middle name of your youngest child?",
+        #        "What is your oldest sibling's middle name?",
+        #        "What school did you attend for sixth grade?",
+        #        "What was your childhood phone number including area code?",
+        #        "What is your oldest cousin's first and last name?",
+        #        "What was the name of your first stuffed animal?",
+        #        "In what city or town did your mother and father meet?"
+        #    ]
+
+        #print("Please choose 3 security questions from the following list:")
+        #for i, question in enumerate(security_questions):
+        #    print(f"{i+1}. {question}")
+
+        #chosen_questions = []
+        #while len(chosen_questions) < 3:
+        #    choice = int(input("Enter the number of the question you want to choose: "))
+        #    if 1 <= choice <= 12 and choice not in chosen_questions:
+        #        chosen_questions.append(choice)
+        #    else:
+        #        print("Invalid choice or question already selected. Please try again.")
+
+        #chosen_questions_text = [security_questions[i-1] for i in chosen_questions]
+        #security_answers = []
+        #for question in chosen_questions_text:
+        #    answer = input(f"Answer for '{question}': ")
+        #    security_answers.append(answer)
+
+
+        #newRow = {
+        #        'Username': Username,
+        #        'Displayname': DisplayName,
+        #        'Name': Name,
+        #        'Email': Email,
+        #        'Role': Role,
+        #        'Password': HashedPass,
+        #        'SecurityQuestions': "|".join(chosen_questions_text),
+        #        'SecurityAnswers': "|".join(security_answers)
+        #    }
+
+            # Row added to the file.
+        #    df = df._append(newRow, ignore_index=True)
+        #    df.to_csv('Database.csv', index=False)
+
+        #if (len(password) >= 8 and re.search(r'[A-Z]', password) and re.search(r'[a-z]', password) and re.search(r'[0-9]', password) and re.search(r'[^A-Za-z0-9]', password)):
+
+
     # Sudo log in function
     def checkUser():
         # Get dataframe first
         df = pd.read_csv('Database.csv')
 
-        # Input lo in info
+        # Input log-in info
         username = input("Enter username: ")
         password = input("Enter password: ")
         hashedPass = createPwdHash(password)
-        
-
-    #security_questions = [
-    #        "What was your childhood nickname?",
-    #        "In what city did you meet your spouse/significant other?",
-    #        "What is the name of your favorite childhood friend?",
-    #        "What street did you live on in third grade?",
-    #        "What is your oldest sibling's birthday month and year?",
-    #        "What is the middle name of your youngest child?",
-    #        "What is your oldest sibling's middle name?",
-    #        "What school did you attend for sixth grade?",
-    #        "What was your childhood phone number including area code?",
-    #        "What is your oldest cousin's first and last name?",
-    #        "What was the name of your first stuffed animal?",
-    #        "In what city or town did your mother and father meet?"
-    #    ]
-
-    #print("Please choose 3 security questions from the following list:")
-    #for i, question in enumerate(security_questions):
-    #    print(f"{i+1}. {question}")
-
-    #chosen_questions = []
-    #while len(chosen_questions) < 3:
-    #    choice = int(input("Enter the number of the question you want to choose: "))
-    #    if 1 <= choice <= 12 and choice not in chosen_questions:
-    #        chosen_questions.append(choice)
-    #    else:
-    #        print("Invalid choice or question already selected. Please try again.")
-
-    #chosen_questions_text = [security_questions[i-1] for i in chosen_questions]
-    #security_answers = []
-    #for question in chosen_questions_text:
-    #    answer = input(f"Answer for '{question}': ")
-    #    security_answers.append(answer)
-
-
-    #newRow = {
-    #        'Username': Username,
-    #        'Displayname': DisplayName,
-    #        'Name': Name,
-    #        'Email': Email,
-    #        'Role': Role,
-    #        'Password': HashedPass,
-    #        'SecurityQuestions': "|".join(chosen_questions_text),
-    #        'SecurityAnswers': "|".join(security_answers)
-    #    }
-
-        # Row added to the file.
-    #    df = df._append(newRow, ignore_index=True)
-    #    df.to_csv('Database.csv', index=False)
-
-
 
         # Check if username is valid
         if username not in df['Database.csv'].values:
             print('Invalid Username.')
             return
-        
-        #if (len(password) >= 8 and re.search(r'[A-Z]', password) and re.search(r'[a-z]', password) and re.search(r'[0-9]', password) and re.search(r'[^A-Za-z0-9]', password)):
-    
 
         # If it is, grab the row it relates too
-        userRow = df.loc[df['Username'] == username]
+        userRow = df.loc[df['Username'] == username] # May be redundant?
         
         # Check if password has matches
         if df.loc[df['Username'] == username,'Password'] == hashedPass:
@@ -136,7 +134,7 @@ class UserAccount:
 
 
 
-# Main code, uncomment as needed.
+# Main code, uncomment as needed for testing.
 def main():
     #UserAccount.createDataframe()
     #UserAccount.createUserRow()
