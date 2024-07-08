@@ -139,7 +139,7 @@ class UserAccount:
 def main():
     if not os.path.isfile('Database.csv'):
         UserAccount.createDataframe()
-    #UserAccount.createUserRow()
+    UserAccount.createUserRow()
     UserAccount.checkUser()
     UserAccount.changePass()
     UserAccount.checkUser()
