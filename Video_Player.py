@@ -5,7 +5,7 @@ import mergeVid as mv
 def videoPlayer(playlistName):
     merge = mv.mergeVid()
     #make this selectable instead of a set playlist name later
-    temp_list = merge.build_playlist(playlistName)
+    merge.build_playlist(playlistName)
     player = VideoPlayer("my_concatenation.mp4")
 
     while True:
