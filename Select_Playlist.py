@@ -60,8 +60,8 @@ def Dropdown(scrn, x_pos, y_pos, playlist_names):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if button.check_click():
+                        pygame.quit()
                         vp.videoPlayer(button.text)
-                        
         pygame.display.flip()
 
 #Update the frames  
