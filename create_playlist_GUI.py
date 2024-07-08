@@ -68,7 +68,7 @@ def create_playlist():
                         # If the YouTube URL is invalid, create a error pop-up and break 
                         # out of the create playlist window
                 elif values[f'-LOCAL-{i}'] and values[f'-LOCAL_PATH-{i}']:
-                    path = values[f'-LOCAL_PATH-{i}']
+                    path = values[f'-LOCAL_PATH-{i}'].replace('/', '\\')
                     video_entries.append(('Local', path))
                      # If a playlist entry is not empty and a directory pathway, append the entry
 
