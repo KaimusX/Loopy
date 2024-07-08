@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import re 
 import download_video as dv
 import playlist as pl
+import os
 
 # Authors: Shari Hoch and Luis Franco
 # Timestamp: 06/21/2024 1:26PM
@@ -68,17 +69,37 @@ def create_playlist():
                         # If the YouTube URL is invalid, create a error pop-up and break 
                         # out of the create playlist window
                 elif values[f'-LOCAL-{i}'] and values[f'-LOCAL_PATH-{i}']:
-                    path = values[f'-LOCAL_PATH-{i}']
-                    video_entries.append(('Local', path))
-                     # If a playlist entry is not empty and a directory pathway, append the entry
+                    path = values[f'-LOCAL_PATH-{i}'].replace('/', '\\')
 
-            if not error:
-                # Handle the collected data here
+                    if os.path.isfile(path):
+                        video_entries.append(('Local', path))
+                        # If a playlist entry is not empty and a directory pathway, append the entry
+                    else:
+                        sg.popup_error(f'Invalid local file path for Video {i+1}: {path}')
+                        error = True
+                        break
+
+        if not video_entries:
+            sg.popup_error('Please add at least one video to the playlist.')
+            error = True
+            continue
+
+
+        if not error:
+            # Handle the collected data here
+            try:
                 playlist_database = pl.Playlist()
                 playlist_database.create_playlist(playlist_name)
                 for entry in video_entries:
                     source, url_or_path = entry
                     dv.fileDownloader(url_or_path, source, playlist_name)
+                sg.popup('Playlist created successfully!')
+                window.close()
+                break
+
+            except Exception as e:
+                sg.popup_error(f'An error occurred while creating the playlist: {e}')
+
         window.close()
     
 if __name__ == "__main__":

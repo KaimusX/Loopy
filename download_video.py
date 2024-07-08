@@ -3,11 +3,12 @@ import hashlib
 import pandas as pd
 from moviepy.editor import VideoFileClip
 import os
+import shutil
 
 
 
 class fileDownloader: 
-    def __init__(self, video, source, playlist_name):
+    def __init__(self, video, source, playlist_name, output_path='Video_Media'):
         # Download the video and get the file path
         #video_url = 'https://www.youtube.com/watch?v=ucZl6vQ_8Uo'
         #video_url = 'https://www.youtube.com/watch?v=fMAK33FnaBE'
@@ -15,7 +16,7 @@ class fileDownloader:
         if source == 'YouTube':
             video_path = self.download_youtube_video(video)
         else:
-            video_path = video
+            video_path = self.download_local_video(video, output_path)
         #Break off the audio from the video
         print (video_path)
         audio_path = self.break_off_Audio(video_path)
@@ -38,6 +39,21 @@ class fileDownloader:
             return video_path
         except Exception as e:
             print(f'An error occurred: {e}')
+
+    def download_local_video(self, video_path, output_path='Video_Media'):
+        try:
+            # If path to video does not exist, make a path
+            if not os.path.exists(output_path): 
+                os.makedirs(output_path)
+            # Then, join this path with the output_path
+            destination_path = os.path.join(output_path, os.path.basename(video_path))
+            # Then, copy this joined path and print out the joined path
+            shutil.copy(video_path, destination_path)
+            print(f'Local video copied to: {destination_path}')
+            return destination_path
+        except Exception as e:
+            print(f'An error occurred while copying local video: {e}')
+            return None
                     
 
     def break_off_Audio(self, video_path, output_dir='Audio_Media'):  
