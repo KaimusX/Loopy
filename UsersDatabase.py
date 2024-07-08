@@ -24,32 +24,31 @@ class UserAccount:
 
     # Dataframe (csv/database) creation
     def createDataframe():
-        df = pd.DataFrame({'Username': [], 'Displayname': [], 'Name': [], 'Email': [], 'Role': [], 'Password': []})
+        df = pd.DataFrame({'Username': [], 'Displayname': [], 'Name': [], 'Email': [], 'Password': []})
         df.to_csv('Database.csv', index=False)
 
     # Account creation
-    def createUserRow():
+    def createUserRow(): #usr,disp,nm,em,psw
         # Loading the dataframe
         df = pd.read_csv('Database.csv')
 
         # Temporary inputs until we have a front end to submit information through
-        Username = 'invalid'
-        while Username == 'invalid':
-            Username = input("Username: ")
-            for x in ['&','?','/','\'','\\','|','[',']','{','}','%',' ']:
-                if x in Username:
-                    Username = 'invalid'
-        DisplayName = input("Display name: ")
-        Name = input("Full name: ")
-        Email = input("Email address: ")
-        Role = input("Role: ")
-        Pass = input("Password: ")
+        Username = input("Username: ") #usr
+        #while Username == 'invalid':
+        #    Username = input("Username: ")
+        #    for x in ['&','?','/','\'','\\','|','[',']','{','}','%',' ']:
+        #        if x in Username:
+        #            Username = 'invalid'
+        DisplayName = input("Display Name: ") #disp
+        Name = input("Full Name: ") #nm
+        Email = input("Email: ") #em
+        Pass = input("Password: ") #psw
 
         # Hash the password so we don't transfer it in plain text
         HashedPass = createPwdHash(Pass)
 
         # Complete row of data
-        newRow = {'Username':Username, 'Displayname': DisplayName, 'Name': Name, 'Email': Email, 'Role': Role, 'Password': HashedPass}
+        newRow = {'Username':Username, 'Displayname': DisplayName, 'Name': Name, 'Email': Email, 'Password': HashedPass}
 
         # Row added to the file.
         df = df._append(newRow, ignore_index=True)
@@ -94,7 +93,6 @@ class UserAccount:
         #        'Displayname': DisplayName,
         #        'Name': Name,
         #        'Email': Email,
-        #        'Role': Role,
         #        'Password': HashedPass,
         #        'SecurityQuestions': "|".join(chosen_questions_text),
         #        'SecurityAnswers': "|".join(security_answers)
@@ -133,33 +131,70 @@ class UserAccount:
         password = input("Enter password: ")
         hashedPass = createPwdHash(password)
 
+        # Condition to track if Username was found
         foundUser = False
+        
+        # Set up 3D array to search through
         for user_row in users_3d:
+            # Username found scenario
             if user_row[0][0] == username:
                 if DEBUG:
                     print("Username Valid")
-                foundUser = True
-                if user_row[0][5] == hashedPass:
+                foundUser = True # Set to true so we dont' trigger an 'invalid user' condition
+                if user_row[0][4] == hashedPass:
+                    # Correct pass scenario
                     if DEBUG:
                         print("Password Correct")
                 else:
+                    # Incorrect pass scenario
                     if DEBUG:
                         print("Password Incorrect")
                 break
+        # If still false at the end, the user wasn't found.
         if foundUser == False:
             print("invalid Username")
 
-    def changePass():
-        pass
 
+    # Function to alter passwords (or any information, eventually)
+    def changePass():
+        email = input("Enter email: ")
+        df = pd.read_csv('Database.csv')
+        
+        # Find the row where the email matches
+        row_index = df.index[df['Email'] == email].tolist()
+        
+        if not row_index:
+            print(f"No user found with email '{email}'")
+            return
+        
+        # Assuming there's only one row with this email (unique email constraint)
+        row_index = row_index[0]
+        
+        oldPass = input("Enter old password: ")
+        newPass = input("Enter new password: ")
+        
+        # Check if the old password matches (assuming you have stored password hashes)
+        if createPwdHash(oldPass) != df.at[row_index, 'Password']:
+            print("Incorrect old password. Password change failed.")
+            return
+        
+        # Update the password for the found row
+        df.at[row_index, 'Password'] = createPwdHash(newPass)
+        
+        # Write back to the CSV file
+        df.to_csv('Database.csv', index=False)
+        
+        print("Password updated successfully.")
 
 # Main code, uncomment as needed for testing.
 def main():
     if not os.path.isfile('Database.csv'):
         UserAccount.createDataframe()
-    UserAccount.createUserRow()
+    #UserAccount.createUserRow()
     UserAccount.checkUser()
-    pass
+    UserAccount.changePass()
+    UserAccount.checkUser()
+
 
 if __name__ == "__main__":
     main()
