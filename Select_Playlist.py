@@ -61,6 +61,7 @@ def Dropdown(scrn, x_pos, y_pos, playlist_names):
                 for button in buttons:
                     if button.check_click():
                         vp.videoPlayer(button.text)
+                        
         pygame.display.flip()
 
 #Update the frames  
