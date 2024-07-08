@@ -2,8 +2,7 @@ import PySimpleGUI as sg
 import pygame
 from moviepy.editor import *     
 import mergeVid as mv
-import create_playlist_GUI
-import Select_Playlist
+
 
 # Initialize pygame
 pygame.init()
@@ -50,11 +49,11 @@ def update_frame(video, scr):
     return frame
 
 # Function to play a video from the playlist
-def Home():
+def Playlists():
     
         # Update the screen size
-        width = 1000
-        height = 500
+        width = 900
+        height = 450
         scrn = pygame.display.set_mode([width, height])
         pygame.display.set_caption('LOOPY Video Player')
         
@@ -65,29 +64,13 @@ def Home():
         
         # Main loop
         while run:
-            #initialize buttons
-            Create = Button(scrn, 'Create Playlist', 100, 200, True)
-            Select = Button(scrn, 'Select Playlist', 700, 200, True)
-            
-            if pygame.mouse.get_pressed()[0] and new_press:
-                new_press = False
-            
-            if not pygame.mouse.get_pressed()[0] and not new_press:
-                new_press = True
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            if Create.check_click():
-                create_playlist_GUI.create_playlist()
-            if Select.check_click():
-                Select_Playlist.Playlists()
-                pygame.quit()
-                
             pygame.display.flip()
         
         # Clean up
         pygame.quit()
 
-Home()
     
