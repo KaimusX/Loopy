@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import pygame
 from moviepy.editor import *     
 import mergeVid as mv
+import csv
 
 
 # Initialize pygame
@@ -11,6 +12,8 @@ pygame.mixer.init()
 #Set font for buttons
 font = pygame.font.Font('freesansbold.ttf', 18)
 #Button class for buttons (DO NOT CHANGE ANYTHING INSIDE THIS WITHOUT TALKING TO KALEIGH)
+
+# Dropdown class for displaying playlist names
 class Button():
     def __init__(self, scrn, text, x_pos, y_pos, enabled):
         self.text = text
@@ -39,6 +42,26 @@ class Button():
         else:
             return False
 
+def create_buttons(scrn, x_pos, y_pos, playlist_names):
+    buttons = []
+    for i, name in enumerate(playlist_names):
+        button = Button(scrn, name, x_pos, y_pos + i * 30, True)
+        buttons.append(button)
+    return buttons
+
+def Dropdown(scrn, x_pos, y_pos, playlist_names):
+    buttons = create_buttons(scrn, x_pos, y_pos, playlist_names)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for button in buttons:
+                    if button.check_click():
+                        print(f"Button {button.text} clicked")
+        pygame.display.flip()
+
 #Update the frames  
 def update_frame(video, scr):
     audio_pos = pygame.mixer.music.get_pos() / 1000.0
@@ -50,12 +73,12 @@ def update_frame(video, scr):
 
 # Function to play a video from the playlist
 def Playlists():
-    
         # Update the screen size
         width = 900
         height = 450
         scrn = pygame.display.set_mode([width, height])
         pygame.display.set_caption('LOOPY Video Player')
+        Dropdown(scrn, 100, 100, create_user_list())
         
         #is loop running
         run = True
@@ -73,4 +96,13 @@ def Playlists():
         # Clean up
         pygame.quit()
 
+def create_user_list():
+    playlist_names = []
     
+    with open('playlists.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['User'] == 'User1':
+                playlist_names.append(row['PlayList_Name'])
+    print(playlist_names)
+    return playlist_names
