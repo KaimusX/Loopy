@@ -1,231 +1,136 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
-import json
+from tkinter import messagebox
 import bcrypt
-import datetime
 
-class AccountManager:
-    def __init__(self, storage_file='users.json'):
-        self.storage_file = storage_file
-        self.load_accounts()
+class SimpleAccountManager:
+    def __init__(self):
+        self.accounts = {}
 
-    def load_accounts(self):
-        try:
-            with open(self.storage_file, 'r') as f:
-                data = json.load(f)
-                self.accounts = [User(**user_data) for user_data in data]
-        except (FileNotFoundError, json.JSONDecodeError):
-            self.accounts = []
+    def add_account(self, username, password, name, email):
+        if username in self.accounts:
+            raise ValueError("Username already exists.")
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        self.accounts[username] = {
+            'name': name,
+            'email': email,
+            'password_hash': password_hash
+        }
 
-    def save_accounts(self):
-        with open(self.storage_file, 'w') as f:
-            json.dump([vars(user) for user in self.accounts], f, indent=4)
+    def check_credentials(self, username, password):
+        if username in self.accounts:
+            stored_hash = self.accounts[username]['password_hash']
+            return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
+        return False
 
-    def add_account(self, user):
-        self.accounts.append(user)
-        self.save_accounts()
-
-    def get_user_by_username(self, username):
-        for user in self.accounts:
-            if user.username == username:
-                return user
+    def get_user_info(self, username):
+        if username in self.accounts:
+            return self.accounts[username]
         return None
 
-    def validate_input(self, **kwargs):
-        required_fields = ['name', 'username', 'email', 'password']
-        for field in required_fields:
-            if not kwargs.get(field):
-                raise ValueError(f"Missing required field: {field}")
-
-class User:
-    def __init__(self, name, username, email, password, status='active'):
-        self.name = name
-        self.username = username
-        self.email = email
-        self.set_password(password)
-        self.status = status
-        self.last_login = None
-        self.last_logout = None
-
-    def set_password(self, password):
-        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-    def check_password(self, password):
-        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
-
-class AccountManagerUI:
+class SimpleAccountManagerUI:
     def __init__(self, master):
         self.master = master
-        self.master.title("Account Management System")
-        self.manager = AccountManager()
-        self.current_frame = None
+        self.master.title("Simple Account Management System")
+        self.manager = SimpleAccountManager()
+        self.screen_stack = []  # Stack to keep track of the screens
+        self.create_widgets()
 
-        self.show_login_screen()
+    def create_widgets(self):
+        self.clear_frame()
+        self.screen_stack.append(self.create_widgets)  # Push the current screen function to the stack
 
-    def switch_frame(self, new_frame_class):
-        if self.current_frame:
-            self.current_frame.destroy()
-        self.current_frame = new_frame_class(self.master, self)
-        self.current_frame.pack()
+        self.login_button = tk.Button(self.main_frame, text="Login", command=self.show_login_screen)
+        self.login_button.pack(pady=10)
+
+        self.register_button = tk.Button(self.main_frame, text="Register", command=self.show_register_screen)
+        self.register_button.pack(pady=10)
 
     def show_login_screen(self):
-        self.switch_frame(LoginScreen)
+        self.clear_frame()
+        self.screen_stack.append(self.show_login_screen)  # Push the current screen function to the stack
 
-    def show_register_screen(self):
-        self.switch_frame(RegisterScreen)
+        tk.Label(self.main_frame, text="Username").pack()
+        self.username_entry = tk.Entry(self.main_frame)
+        self.username_entry.pack()
 
-    def show_forgot_password_screen(self):
-        self.switch_frame(ForgotPasswordScreen)
+        tk.Label(self.main_frame, text="Password").pack()
+        self.password_entry = tk.Entry(self.main_frame, show="*")
+        self.password_entry.pack()
 
-    def show_otp_screen(self):
-        self.switch_frame(OTPScreen)
-
-    def show_create_password_screen(self):
-        self.switch_frame(CreatePasswordScreen)
-
-class LoginScreen(tk.Frame):
-    def __init__(self, master, app):
-        super().__init__(master)
-        self.app = app
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Email:").grid(row=0, column=0, sticky="e")
-        self.email_entry = tk.Entry(self)
-        self.email_entry.grid(row=0, column=1)
-
-        tk.Label(self, text="Password:").grid(row=1, column=0, sticky="e")
-        self.password_entry = tk.Entry(self, show="*")
-        self.password_entry.grid(row=1, column=1)
-
-        tk.Checkbutton(self, text="Remember Me").grid(row=2, columnspan=2)
-
-        tk.Button(self, text="Login", command=self.login).grid(row=3, columnspan=2, pady=10)
-        tk.Button(self, text="Register", command=self.app.show_register_screen).grid(row=4, columnspan=2)
-        tk.Button(self, text="Forgot Password?", command=self.app.show_forgot_password_screen).grid(row=5, columnspan=2)
+        tk.Button(self.main_frame, text="Login", command=self.login).pack(pady=10)
+        tk.Button(self.main_frame, text="Back", command=self.go_back).pack(pady=10)
 
     def login(self):
-        email = self.email_entry.get()
+        username = self.username_entry.get()
         password = self.password_entry.get()
-        user = self.app.manager.get_user_by_username(email)
-        if user and user.check_password(password):
-            messagebox.showinfo("Success", "Login successful!")
+        if self.manager.check_credentials(username, password):
+            messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!")
+            user_info = self.manager.get_user_info(username)
+            self.show_account_screen(user_info)
         else:
-            messagebox.showerror("Error", "Invalid email or password.")
+            messagebox.showerror("Login", "Invalid username or password.")
 
-class RegisterScreen(tk.Frame):
-    def __init__(self, master, app):
-        super().__init__(master)
-        self.app = app
-        self.create_widgets()
+    def show_register_screen(self):
+        self.clear_frame()
+        self.screen_stack.append(self.show_register_screen)  # Push the current screen function to the stack
 
-    def create_widgets(self):
-        tk.Label(self, text="Name:").grid(row=0, column=0, sticky="e")
-        self.name_entry = tk.Entry(self)
-        self.name_entry.grid(row=0, column=1)
+        tk.Label(self.main_frame, text="Name").pack()
+        self.name_entry = tk.Entry(self.main_frame)
+        self.name_entry.pack()
 
-        tk.Label(self, text="Username:").grid(row=1, column=0, sticky="e")
-        self.username_entry = tk.Entry(self)
-        self.username_entry.grid(row=1, column=1)
+        tk.Label(self.main_frame, text="Email").pack()
+        self.email_entry = tk.Entry(self.main_frame)
+        self.email_entry.pack()
 
-        tk.Label(self, text="Email:").grid(row=2, column=0, sticky="e")
-        self.email_entry = tk.Entry(self)
-        self.email_entry.grid(row=2, column=1)
+        tk.Label(self.main_frame, text="Username").pack()
+        self.username_entry = tk.Entry(self.main_frame)
+        self.username_entry.pack()
 
-        tk.Label(self, text="Password:").grid(row=3, column=0, sticky="e")
-        self.password_entry = tk.Entry(self, show="*")
-        self.password_entry.grid(row=3, column=1)
+        tk.Label(self.main_frame, text="Password").pack()
+        self.password_entry = tk.Entry(self.main_frame, show="*")
+        self.password_entry.pack()
 
-        tk.Checkbutton(self, text="Remember Me").grid(row=4, columnspan=2)
-
-        tk.Button(self, text="Register", command=self.register).grid(row=5, columnspan=2, pady=10)
-        tk.Button(self, text="Login", command=self.app.show_login_screen).grid(row=6, columnspan=2)
+        tk.Button(self.main_frame, text="Register", command=self.register).pack(pady=10)
+        tk.Button(self.main_frame, text="Back", command=self.go_back).pack(pady=10)
 
     def register(self):
         name = self.name_entry.get()
-        username = self.username_entry.get()
         email = self.email_entry.get()
+        username = self.username_entry.get()
         password = self.password_entry.get()
         try:
-            self.app.manager.validate_input(name=name, username=username, email=email, password=password)
-            user = User(name, username, email, password)
-            self.app.manager.add_account(user)
-            messagebox.showinfo("Success", "Account created successfully!")
-            self.app.show_login_screen()
+            self.manager.add_account(username, password, name, email)
+            messagebox.showinfo("Register", "Registration successful!")
+            self.create_widgets()
         except ValueError as e:
-            messagebox.showerror("Error", str(e))
+            messagebox.showerror("Register", str(e))
 
-class ForgotPasswordScreen(tk.Frame):
-    def __init__(self, master, app):
-        super().__init__(master)
-        self.app = app
-        self.create_widgets()
+    def show_account_screen(self, user_info):
+        self.clear_frame()
+        self.screen_stack.append(lambda: self.show_account_screen(user_info))  # Push the current screen function to the stack
 
-    def create_widgets(self):
-        tk.Label(self, text="Enter your registered email to receive password reset instructions:").grid(row=0, columnspan=2)
-        tk.Label(self, text="Email:").grid(row=1, column=0, sticky="e")
-        self.email_entry = tk.Entry(self)
-        self.email_entry.grid(row=1, column=1)
+        tk.Label(self.main_frame, text=f"Name: {user_info['name']}").pack()
+        tk.Label(self.main_frame, text=f"Email: {user_info['email']}").pack()
+        tk.Label(self.main_frame, text=f"Username: {user_info['username']}").pack()
 
-        tk.Button(self, text="Continue", command=self.continue_reset).grid(row=2, columnspan=2, pady=10)
+        tk.Button(self.main_frame, text="Logout", command=self.create_widgets).pack(pady=10)
 
-    def continue_reset(self):
-        email = self.email_entry.get()
-        user = self.app.manager.get_user_by_username(email)
-        if user:
-            self.app.show_otp_screen()
-        else:
-            messagebox.showerror("Error", "Email not found.")
+    def go_back(self):
+        if self.screen_stack:
+            self.screen_stack.pop()  # Remove the current screen function
+            if self.screen_stack:
+                previous_screen = self.screen_stack.pop()  # Get the previous screen function
+                previous_screen()  # Show the previous screen
 
-class OTPScreen(tk.Frame):
-    def __init__(self, master, app):
-        super().__init__(master)
-        self.app = app
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Enter the verification code sent to your email:").grid(row=0, columnspan=2)
-        self.otp_entry = tk.Entry(self)
-        self.otp_entry.grid(row=1, columnspan=2)
-
-        tk.Button(self, text="Verify", command=self.verify_code).grid(row=2, columnspan=2, pady=10)
-
-    def verify_code(self):
-        # Placeholder for OTP verification logic
-        self.app.show_create_password_screen()
-
-class CreatePasswordScreen(tk.Frame):
-    def __init__(self, master, app):
-        super().__init__(master)
-        self.app = app
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Create New Password:").grid(row=0, columnspan=2)
-
-        tk.Label(self, text="Password:").grid(row=1, column=0, sticky="e")
-        self.password_entry = tk.Entry(self, show="*")
-        self.password_entry.grid(row=1, column=1)
-
-        tk.Label(self, text="Confirm Password:").grid(row=2, column=0, sticky="e")
-        self.confirm_password_entry = tk.Entry(self, show="*")
-        self.confirm_password_entry.grid(row=2, column=1)
-
-        tk.Button(self, text="Reset Password", command=self.reset_password).grid(row=3, columnspan=2, pady=10)
-
-    def reset_password(self):
-        password = self.password_entry.get()
-        confirm_password = self.confirm_password_entry.get()
-        if password == confirm_password:
-            # Placeholder for password reset logic
-            messagebox.showinfo("Success", "Password reset successful!")
-            self.app.show_login_screen()
-        else:
-            messagebox.showerror("Error", "Passwords do not match.")
+    def clear_frame(self):
+        for widget in self.master.winfo_children():
+            widget.destroy()
+        self.main_frame = tk.Frame(self.master)
+        self.main_frame.pack()
 
 def main():
     root = tk.Tk()
-    app = AccountManagerUI(root)
+    app = SimpleAccountManagerUI(root)
     root.mainloop()
 
 if __name__ == "__main__":
