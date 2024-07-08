@@ -121,6 +121,7 @@ class VideoPlayer:
             if pressed_key == ord('q') or pressed_key == ord('Q') or pressed_key == 27:
                 self.player.close_player()
                 self.state = 'eof'
+                os.remove("my_concatenation.mp4")
                 break
             if self.key_controls and pressed_key != 255:
                 if pressed_key == ord(' ') or pressed_key == ord('k') or pressed_key == ord('K'):
