@@ -24,26 +24,25 @@ class UserAccount:
 
     # Dataframe (csv/database) creation
     def createDataframe():
-        df = pd.DataFrame({'Username': [], 'Displayname': [], 'Name': [], 'Email': [], 'Password': []})
+        df = pd.DataFrame({'Username': [], 'Name': [], 'Email': [], 'Password': []})
         df.to_csv('Database.csv', index=False)
 
     # Account creation
-    def createUserRow(): #usr,disp,nm,em,psw
+    def createUserRow(usr,nm,em,psw):
         # Loading the dataframe
         df = pd.read_csv('Database.csv')
 
         # Temporary inputs until we have a front end to submit information through
-        Username = input("Username: ") #usr
-        DisplayName = input("Display Name: ") #disp
-        Name = input("Full Name: ") #nm
-        Email = input("Email: ") #em
-        Pass = input("Password: ") #psw
+        Username = usr
+        Name = nm
+        Email = em
+        Pass = psw
 
         # Hash the password so we don't transfer it in plain text
         HashedPass = createPwdHash(Pass)
 
         # Complete row of data
-        newRow = {'Username':Username, 'Displayname': DisplayName, 'Name': Name, 'Email': Email, 'Password': HashedPass}
+        newRow = {'Username':Username, 'Name': Name, 'Email': Email, 'Password': HashedPass}
 
         # Row added to the file.
         df = df._append(newRow, ignore_index=True)

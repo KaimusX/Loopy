@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import bcrypt
+import UsersDatabase
 
 class SimpleAccountManager:
     def __init__(self):
@@ -99,6 +100,7 @@ class SimpleAccountManagerUI:
         username = self.username_entry.get()
         password = self.password_entry.get()
         try:
+            #UsersDatabase.UserAccount.createUserRow(username, name, email, password)
             self.manager.add_account(username, password, name, email)
             messagebox.showinfo("Register", "Registration successful!")
             self.create_widgets()
