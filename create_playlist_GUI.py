@@ -18,6 +18,7 @@ def is_valid_youtube_url(url):
 # Exp: When called, creates a pop out gui that allows user to input youtube links or file paths. please see bottom for data.
 def create_playlist():
     video_entries = []
+    MAX_INPUT_LENGTH = 2048
 
     # Defines the contents of the window
 
@@ -52,32 +53,59 @@ def create_playlist():
             break
             # The 'Cancel' button causes the program to break
         elif event == 'Submit':
-            playlist_name = values['-PLAYLIST_NAME-']
-            video_entries = []
-            error = False
-            for i in range(10): # 'For all ten possible entries in the playlist:'
-                if values[f'-YOUTUBE-{i}'] and values[f'-YOUTUBE_URL-{i}']:
-                    # If a playlist entry is not empty and contains a YouTube URL:
-                    url = values[f'-YOUTUBE_URL-{i}']
-                    if is_valid_youtube_url(url):
-                        video_entries.append(('YouTube', url))
-                        # If the YouTube URL is valid, append the entry to the Playlist list
-                    else:
-                        sg.popup_error(f'Invalid YouTube URL for Video {i+1}: {url}')
-                        error = True
-                        break
-                        # If the YouTube URL is invalid, create a error pop-up and break 
-                        # out of the create playlist window
-                elif values[f'-LOCAL-{i}'] and values[f'-LOCAL_PATH-{i}']:
-                    path = values[f'-LOCAL_PATH-{i}'].replace('/', '\\')
+            if values['-PLAYLIST_NAME-']:
+                playlist_name = values['-PLAYLIST_NAME-']
+                video_entries = []
+                error = False
+                for i in range(10): # 'For all ten possible entries in the playlist:'
 
-                    if os.path.isfile(path):
-                        video_entries.append(('Local', path))
-                        # If a playlist entry is not empty and a directory pathway, append the entry
-                    else:
-                        sg.popup_error(f'Invalid local file path for Video {i+1}: {path}')
-                        error = True
-                        break
+                    # Defines the appropriate variables
+                    youtube_url = values[f'-YOUTUBE_URL-{i}']
+                    local_path = values[f'-LOCAL_PATH-{i}']
+                    if values[f'-YOUTUBE-{i}'] and  youtube_url:
+
+                        if len(youtube_url) > MAX_INPUT_LENGTH:
+                            sg.popup_error(f'YouTube URL for Video {i+1} is too long. Please shorten it.')
+                            error = True
+                            break
+
+                        # If a playlist entry is not empty and contains a YouTube URL:
+                        if is_valid_youtube_url(youtube_url):
+                            video_entries.append(('YouTube', youtube_url))
+                            # If the YouTube URL is valid, append the entry to the Playlist list
+                        else:
+                            sg.popup_error(f'Invalid YouTube URL for Video {i+1}: {youtube_url}')
+                            error = True
+                            break
+                            # If the YouTube URL is invalid, create a error pop-up and break 
+                            # out of the create playlist window
+                    elif values[f'-LOCAL-{i}'] and values[f'-LOCAL_PATH-{i}']:
+                        # path = values[f'-LOCAL_PATH-{i}'].replace('/', '\\')
+                        if len(local_path) > MAX_INPUT_LENGTH:
+                            sg.popup_error(f'Local file path for Video {i+1} is too long. Please shorten it.')
+                            error = True
+                            break
+
+                        if os.path.isfile(local_path):
+                            video_entries.append(('Local', local_path))
+                            # If a playlist entry is not empty and a directory pathway, append the entry
+                            # Check if the local file is an MP4 file
+                            if local_path.lower().endswith('.mp4'):
+                                video_entries.append(('Local', local_path))
+                            else:
+                                sg.popup_error(f'File for Video {i+1} is not an MP4 file: {local_path}')
+                                error = True
+                                break
+
+                        else:
+                            sg.popup_error(f'Invalid local file path for Video {i+1}: {local_path}')
+                            error = True
+                            break
+            else:
+                sg.popup_error('Please provide a name for the playlist.')
+                error = True
+                continue
+
 
         if not video_entries:
             sg.popup_error('Please add at least one video to the playlist.')
@@ -100,7 +128,7 @@ def create_playlist():
             except Exception as e:
                 sg.popup_error(f'An error occurred while creating the playlist: {e}')
 
-        window.close()
+    window.close() #tab this in 1 in case error
     
 if __name__ == "__main__":
     create_playlist()
