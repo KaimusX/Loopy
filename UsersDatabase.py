@@ -5,6 +5,9 @@ import pygame
 import os
 import hashlib
 import re
+import csv
+
+DEBUG = True
 
 
 # Pasword hashing function
@@ -42,11 +45,7 @@ class UserAccount:
         Role = input("Role: ")
         Pass = input("Password: ")
 
-        while not UserAccount.is_valid_password(Password):
-            print("Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.")
-            Password = input("Password: ")
-
-        # Temproary hash skip, until hashing is implemented
+        # Hash the password so we don't transfer it in plain text
         HashedPass = createPwdHash(Pass)
 
         # Complete row of data
@@ -55,7 +54,6 @@ class UserAccount:
         # Row added to the file.
         df = df._append(newRow, ignore_index=True)
         df.to_csv('Database.csv', index=False)
-
             
         #security_questions = [
         #        "What was your childhood nickname?",
@@ -112,33 +110,55 @@ class UserAccount:
     # Sudo log in function
     def checkUser():
         # Get dataframe first
-        df = pd.read_csv('Database.csv')
+        cwd = os.getcwd()
+        users_file = os.path.join(cwd, 'Database.csv')
+        users = []
+        users_3d = []
+
+        # Read the users CSV and convert the CSV database into a 3D array with proper columns and rows,
+        # excluding the header.
+        try:
+            with open(users_file, 'r') as file:
+                reader = csv.reader(file)
+                next(reader)  # Skip the header
+                users = [row for row in reader]
+                users_3d = [[row] for row in users]
+        except FileNotFoundError:
+            print(f"Error: {users_file} not found.")
+        except Exception as e:
+            print(f"An error occurred while reading {users_file}: {e}")
 
         # Input log-in info
         username = input("Enter username: ")
         password = input("Enter password: ")
         hashedPass = createPwdHash(password)
 
-        # Check if username is valid
-        if username not in df['Database.csv'].values:
-            print('Invalid Username.')
-            return
+        foundUser = False
+        for user_row in users_3d:
+            if user_row[0][0] == username:
+                if DEBUG:
+                    print("Username Valid")
+                foundUser = True
+                if user_row[0][5] == hashedPass:
+                    if DEBUG:
+                        print("Password Correct")
+                else:
+                    if DEBUG:
+                        print("Password Incorrect")
+                break
+        if foundUser == False:
+            print("invalid Username")
 
-        # If it is, grab the row it relates too
-        userRow = df.loc[df['Username'] == username] # May be redundant?
-        
-        # Check if password has matches
-        if df.loc[df['Username'] == username,'Password'] == hashedPass:
-            pass
-            # Log in
-
+    def changePass():
+        pass
 
 
 # Main code, uncomment as needed for testing.
 def main():
-    #UserAccount.createDataframe()
-    #UserAccount.createUserRow()
-    #UserAccount.checkUser()
+    if not os.path.isfile('Database.csv'):
+        UserAccount.createDataframe()
+    UserAccount.createUserRow()
+    UserAccount.checkUser()
     pass
 
 if __name__ == "__main__":
