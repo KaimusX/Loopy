@@ -3,6 +3,7 @@ import pygame
 from moviepy.editor import *     
 import mergeVid as mv
 import csv
+import Video_Player as vp
 
 
 # Initialize pygame
@@ -59,7 +60,7 @@ def Dropdown(scrn, x_pos, y_pos, playlist_names):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if button.check_click():
-                        print(f"Button {button.text} clicked")
+                        vp.videoPlayer(button.text)
         pygame.display.flip()
 
 #Update the frames  
