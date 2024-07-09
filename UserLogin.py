@@ -48,6 +48,7 @@ class SimpleAccountManagerUI:
 #####################################################################
         if UsersDatabase.UserAccount.checkUser(username, password) == "Success":
             messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!") # NEED TO IMPLEMENT NEXT STEP HERE!!!!!!
+            #self.show_2fa_screen() # Go to 2FA to check it, then we can say success and let them through. We can maybe put the success on it's own function.
         else:
             messagebox.showerror("Login", "Username or password not found.")
 
@@ -104,7 +105,29 @@ class SimpleAccountManagerUI:
         tk.Label(self.main_frame, text=f"Username: {user_info['username']}").pack()
 
         tk.Button(self.main_frame, text="Logout", command=self.create_widgets).pack(pady=10)
+#####################################################################################################################################
 
+    def show_2fa_screen(self):
+        self.clear_frame()
+        self.screen_stack.append(self.show_2fa_screen)  # Push the current screen function to the stack
+
+        tk.Label(self.main_frame, text="2-Factor Authentication").pack(pady=10)
+        tk.Label(self.main_frame, text="Enter the 2FA code sent to you:").pack()
+        self.otp_entry = tk.Entry(self.main_frame)
+        self.otp_entry.pack(pady=10)
+
+        tk.Button(self.main_frame, text="Submit", command=self.verify_2fa).pack(pady=10)
+        tk.Button(self.main_frame, text="Back", command=self.go_back).pack(pady=10)
+
+    def verify_2fa(self):
+        otp_code = self.otp_entry.get()
+        if UsersDatabase.UserAccount.verify_otp(otp_code):
+            messagebox.showinfo("2FA", "2FA successful! Your account is now fully set up.")
+            self.create_widgets()  
+        else:
+            messagebox.showerror("2FA", "Invalid 2FA code. Please try again.")
+
+#####################################################################################################################################
     def go_back(self):
         if self.screen_stack:
             self.screen_stack.pop()  # Remove the current screen function
