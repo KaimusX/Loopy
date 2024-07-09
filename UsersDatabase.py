@@ -7,7 +7,7 @@ import hashlib
 import re
 import csv
 
-DEBUG = True
+DEBUG = False
 
 
 # Pasword hashing function
@@ -50,7 +50,7 @@ class UserAccount:
 
 
     # Sudo log in function
-    def checkUser():
+    def checkUser(usr, pswd):
         # Get dataframe first
         cwd = os.getcwd()
         users_file = os.path.join(cwd, 'Database.csv')
@@ -71,8 +71,8 @@ class UserAccount:
             print(f"An error occurred while reading {users_file}: {e}")
 
         # Input log-in info
-        username = input("Enter username: ")
-        password = input("Enter password: ")
+        username = usr
+        password = pswd
         hashedPass = createPwdHash(password)
 
         # Condition to track if Username was found
@@ -85,18 +85,19 @@ class UserAccount:
                 if DEBUG:
                     print("Username Valid")
                 foundUser = True # Set to true so we dont' trigger an 'invalid user' condition
-                if user_row[0][4] == hashedPass:
+                if user_row[0][3] == hashedPass:
                     # Correct pass scenario
                     if DEBUG:
                         print("Password Correct")
+                    return "Success"
                 else:
                     # Incorrect pass scenario
                     if DEBUG:
                         print("Password Incorrect")
-                break
+                    return "Invalid"
         # If still false at the end, the user wasn't found.
         if foundUser == False:
-            print("invalid Username")
+            return "Invalid"
 
 
     # Function to alter passwords (or any information, eventually)

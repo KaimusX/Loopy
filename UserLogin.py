@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 import bcrypt
 import UsersDatabase
+import os
 
 class SimpleAccountManager:
     def __init__(self):
@@ -64,7 +65,7 @@ class SimpleAccountManagerUI:
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        if self.manager.check_credentials(username, password):
+        if UsersDatabase.UserAccount.checkUser(username, password) == "Success":
             messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!")
             user_info = self.manager.get_user_info(username)
             self.show_account_screen(user_info)
@@ -100,7 +101,7 @@ class SimpleAccountManagerUI:
         username = self.username_entry.get()
         password = self.password_entry.get()
         try:
-            #UsersDatabase.UserAccount.createUserRow(username, name, email, password)
+            UsersDatabase.UserAccount.createUserRow(username, name, email, password)
             self.manager.add_account(username, password, name, email)
             messagebox.showinfo("Register", "Registration successful!")
             self.create_widgets()
@@ -131,6 +132,8 @@ class SimpleAccountManagerUI:
         self.main_frame.pack()
 
 def main():
+    if not os.path.isfile('Database.csv'):
+        UsersDatabase.UserAccount.createDataframe()
     root = tk.Tk()
     app = SimpleAccountManagerUI(root)
     root.mainloop()
