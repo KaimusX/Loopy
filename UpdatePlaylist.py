@@ -25,11 +25,12 @@ def create_user_list(user):
                 playlist_names.append(row['PlayList_Name'])
     return playlist_names
 
-def is_valid_youtube_url(url):
+def isValidYoutube(url):
     youtube_regex = re.compile(
         r'^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$'
     )
-    return re.match(youtube_regex, url)
+    youtube_match =  re.match(youtube_regex, url)
+    return bool(youtube_match)
 
 
 # Function to create PySimpleGUI layout for playlists and buttons
@@ -111,11 +112,12 @@ def run_gui(playlist_names):
         
         if event == 'Add to Playlist':
             playlist_name = values['-PLAYLISTS-']
-            # Error handling for missing keys
             video_title = values[f'-YOUTUBE_URL-{0}']
-            md5Hash = add_video_to_playlist(playlist_name, video_title)
-            update_playlist_videos(md5Hash)
-        
+            if isValidYoutube(video_title):
+                md5Hash = add_video_to_playlist(playlist_name, video_title)
+                update_playlist_videos(md5Hash)
+            else: 
+                sg.popup('Error', 'Invalid YouTube URL. Please check and try again.')
         if event == 'Back To Home':
             Loop = False
     window.close()
