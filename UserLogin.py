@@ -89,6 +89,7 @@ class SimpleAccountManagerUI:
             messagebox.showerror("Registration", "Invalid Password.")           #
 #################################################################################
         else:
+            # 2FA QR code stuff before we allow them to be registerd.
             try:
                 UsersDatabase.UserAccount.createUserRow(username, name, email, password)
                 messagebox.showinfo("Register", "Registration successful!")
