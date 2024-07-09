@@ -38,9 +38,7 @@ class mergeVid:
                 # validate and add each video in the playlist
                 for i in range(3, len(playlist_row[0])):
                     video_md5 = playlist_row[0][i]
-                    print(video_md5)
                     audio_md5 = playlist_row[0][i+10]
-                    print(audio_md5)
                     video_path = self.find_video_file(video_md5)
                     audio_path = self.find_audio_file(audio_md5)
                     if video_path is not None and audio_path is not None:
@@ -49,18 +47,14 @@ class mergeVid:
                         print('Video or audio file not found for MD5 hash:', video_md5, audio_md5)
                     if video_path is None or audio_path is None:
                         break
-        print(video_audio_pairs)
         self.concat_videos(video_audio_pairs)
         return os.path.join(self.cwd, "my_concatenation.mp4"), os.path.join(self.cwd, "my_concatenation_audio.mp3")
     
     def concat_videos(self, video_audio_pairs):
         video_clips = []
-        audio_clips = []
-        for video_path, audio_path in video_audio_pairs:
+        for video_path, _ in video_audio_pairs:
             video_clip = VideoFileClip(video_path)
-            audio_clip = AudioFileClip(audio_path)
             video_clips.append(video_clip)
-            audio_clips.append(audio_clip)
 
         # Concatenate all video clips into one
         if video_clips:  # Check if the list is not empty
@@ -68,13 +62,6 @@ class mergeVid:
             final_clip.write_videofile("my_concatenation.mp4")
         else:
             print("No video clips to concatenate.")
-
-        # Concatenate all audio clips into one
-        if audio_clips:  # Check if the list is not empty
-            final_audio = concatenate_audioclips(audio_clips)
-            final_audio.write_audiofile("my_concatenation_audio.mp3")
-        else:
-            print("No audio clips to concatenate.")
                 
     # Function to find the video file based on MD5 hash
     def find_video_file(self, md5_hash):

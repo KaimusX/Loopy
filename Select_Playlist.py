@@ -3,7 +3,6 @@ import pygame
 from moviepy.editor import *     
 import mergeVid as mv
 import csv
-import Video_Player as vp
 
 
 # Initialize pygame
@@ -51,18 +50,24 @@ def create_buttons(scrn, x_pos, y_pos, playlist_names):
     return buttons
 
 def Dropdown(scrn, x_pos, y_pos, playlist_names):
+    pygame.init()
     buttons = create_buttons(scrn, x_pos, y_pos, playlist_names)
-    while True:
+    run = True
+    while run:
+        pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                pygame.display.quit()
+                run = False
                 return
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 for button in buttons:
                     if button.check_click():
-                        pygame.quit()
-                        vp.videoPlayer(button.text)
-        pygame.display.flip()
+                        pygame.display.quit()
+                        run = False
+                        #videoPlayer(button.text)
+                        val = button.text
+    return val
 
 #Update the frames  
 def update_frame(video, scr):
@@ -76,27 +81,29 @@ def update_frame(video, scr):
 # Function to play a video from the playlist
 def Playlists():
         # Update the screen size
+        pygame.init()
         width = 900
         height = 450
         scrn = pygame.display.set_mode([width, height])
         pygame.display.set_caption('LOOPY Video Player')
-        Dropdown(scrn, 100, 100, create_user_list())
+        playlsit = Dropdown(scrn, 100, 100, create_user_list())
         
-        #is loop running
-        run = True
-        #is the next click a new press
-        new_press = True
+        # #is loop running
+        # run = True
+        # #is the next click a new press
+        # new_press = True
         
-        # Main loop
-        while run:
+        # # Main loop
+        # while run:
             
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            pygame.display.flip()
+        #     for event in pygame.event.get():
+        #         if event.type == pygame.QUIT:
+        #             run = False
+        #     pygame.display.flip()
         
-        # Clean up
-        pygame.quit()
+        # # Clean up
+        # pygame.quit()
+        return playlsit
 
 def create_user_list():
     playlist_names = []
