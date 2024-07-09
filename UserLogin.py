@@ -1,9 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
-import bcrypt
 import UsersDatabase
 import os
 import InputValidation
+import Image, Imagetk
 
 class SimpleAccountManagerUI:
     def __init__(self, master):
@@ -96,7 +96,27 @@ class SimpleAccountManagerUI:
                 self.create_widgets()
             except ValueError as e:
                 messagebox.showerror("Register", str(e))
+#######################################################################################################################
+def qr_code_popup(self, username):
+    top = tk.Toplevel(self.master)
+    top.title("2-Factor Authentication")
+    top.geometry("300x400")
 
+    user = self.account_manager.get_user_by_username(username)
+    cwd = os.getcwd()
+
+    if user:
+        qr_path = os.path.join(cwd, 'qr.png')
+        #qr_size = qr_path.resize((200, 200), Image.ANTIALIAS)
+        qr_photo = ImageTk.PhotoImage(qr_path)
+
+        tk.Label(top, text="Scan the QR code to enable 2-Factor Authentication").pack(pady=10)
+        tk.Label(top, image=qr_photo).pack(pady=10)
+        tk.Button(top, text="Done", command=top.destroy).pack(pady=20)
+    else:
+        messagebox.showerror("Error", "User not found.")
+
+#######################################################################################################################
     def show_account_screen(self, user_info):
         self.clear_frame()
         self.screen_stack.append(lambda: self.show_account_screen(user_info))  # Push the current screen function to the stack

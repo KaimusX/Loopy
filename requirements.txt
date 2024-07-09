@@ -5,10 +5,9 @@ PySimpleGUI
 bcrypt
 pygame
 moviepy
-<<<<<<< HEAD
 pandas
-=======
-pandas
->>>>>>> origin/S1B
-
 regex
+Image
+ImageTK
+pyotp
+qrcode
