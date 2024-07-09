@@ -2,6 +2,7 @@ import math
 import os
 import threading
 import time
+import Instructions_GUI
 
 import cv2
 import numpy
@@ -27,6 +28,11 @@ def _show_black_and_wait(self):
         self.pause = False
         self.player.toggle_pause()
 
+def RunGUI():
+        gui = Instructions_GUI.InstructionsGUI()
+        # Call the create_gui method to create the instructions GUI
+        gui.create_gui()
+        
 class InitializationError(Exception):
     def __init__(self, **kwargs) -> None:
         self.message = kwargs.get('message', "cvplayer::error: error occured while initializing player: ") + str(kwargs.get('error', ''))
@@ -86,7 +92,7 @@ class VideoPlayer:
                 handler_thread.start()
         except Exception as error:
             raise error from InitializationError(error=error)
-
+    
     def _player_handler(self):
         if self.pause and self.playback:
             _show_black_and_wait(self)
@@ -123,6 +129,10 @@ class VideoPlayer:
                 self.state = 'quit'
                 os.remove("my_concatenation.mp4")
                 break
+            if pressed_key == ord('x') or pressed_key == ord('X'):
+                print("RUN")
+                gui_thread = threading.Thread(target=RunGUI, args=(), daemon=True)
+                gui_thread.start()  
             if self.key_controls and pressed_key != 255:
                 if pressed_key == ord(' ') or pressed_key == ord('k') or pressed_key == ord('K'):
                     self.pause = not self.pause
