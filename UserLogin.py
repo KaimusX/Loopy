@@ -1,37 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
 import bcrypt
-
-class SimpleAccountManager:
-    def __init__(self):
-        self.accounts = {}
-
-    def add_account(self, username, password, name, email):
-        if username in self.accounts:
-            raise ValueError("Username already exists.")
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        self.accounts[username] = {
-            'name': name,
-            'email': email,
-            'password_hash': password_hash
-        }
-
-    def check_credentials(self, username, password):
-        if username in self.accounts:
-            stored_hash = self.accounts[username]['password_hash']
-            return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
-        return False
-
-    def get_user_info(self, username):
-        if username in self.accounts:
-            return self.accounts[username]
-        return None
+import UsersDatabase
+import os
 
 class SimpleAccountManagerUI:
     def __init__(self, master):
         self.master = master
         self.master.title("Simple Account Management System")
-        self.manager = SimpleAccountManager()
         self.screen_stack = []  # Stack to keep track of the screens
         self.create_widgets()
 
@@ -63,10 +39,8 @@ class SimpleAccountManagerUI:
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        if self.manager.check_credentials(username, password):
-            messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!")
-            user_info = self.manager.get_user_info(username)
-            self.show_account_screen(user_info)
+        if UsersDatabase.UserAccount.checkUser(username, password) == "Success":
+            messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!") # NEED TO IMPLEMENT NEXT STEP HERE!!!!!!
         else:
             messagebox.showerror("Login", "Invalid username or password.")
 
@@ -99,7 +73,7 @@ class SimpleAccountManagerUI:
         username = self.username_entry.get()
         password = self.password_entry.get()
         try:
-            self.manager.add_account(username, password, name, email)
+            UsersDatabase.UserAccount.createUserRow(username, name, email, password)
             messagebox.showinfo("Register", "Registration successful!")
             self.create_widgets()
         except ValueError as e:
@@ -129,6 +103,8 @@ class SimpleAccountManagerUI:
         self.main_frame.pack()
 
 def main():
+    if not os.path.isfile('Database.csv'):
+        UsersDatabase.UserAccount.createDataframe()
     root = tk.Tk()
     app = SimpleAccountManagerUI(root)
     root.mainloop()

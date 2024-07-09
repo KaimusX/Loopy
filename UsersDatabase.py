@@ -7,7 +7,7 @@ import hashlib
 import re
 import csv
 
-DEBUG = True
+DEBUG = False
 
 
 # Pasword hashing function
@@ -24,26 +24,25 @@ class UserAccount:
 
     # Dataframe (csv/database) creation
     def createDataframe():
-        df = pd.DataFrame({'Username': [], 'Displayname': [], 'Name': [], 'Email': [], 'Password': []})
+        df = pd.DataFrame({'Username': [], 'Name': [], 'Email': [], 'Password': []})
         df.to_csv('Database.csv', index=False)
 
     # Account creation
-    def createUserRow(): #usr,disp,nm,em,psw
+    def createUserRow(usr,nm,em,psw):
         # Loading the dataframe
         df = pd.read_csv('Database.csv')
 
         # Temporary inputs until we have a front end to submit information through
-        Username = input("Username: ") #usr
-        DisplayName = input("Display Name: ") #disp
-        Name = input("Full Name: ") #nm
-        Email = input("Email: ") #em
-        Pass = input("Password: ") #psw
+        Username = usr
+        Name = nm
+        Email = em
+        Pass = psw
 
         # Hash the password so we don't transfer it in plain text
         HashedPass = createPwdHash(Pass)
 
         # Complete row of data
-        newRow = {'Username':Username, 'Displayname': DisplayName, 'Name': Name, 'Email': Email, 'Password': HashedPass}
+        newRow = {'Username':Username, 'Name': Name, 'Email': Email, 'Password': HashedPass}
 
         # Row added to the file.
         df = df._append(newRow, ignore_index=True)
@@ -51,7 +50,7 @@ class UserAccount:
 
 
     # Sudo log in function
-    def checkUser():
+    def checkUser(usr, pswd):
         # Get dataframe first
         cwd = os.getcwd()
         users_file = os.path.join(cwd, 'Database.csv')
@@ -72,8 +71,8 @@ class UserAccount:
             print(f"An error occurred while reading {users_file}: {e}")
 
         # Input log-in info
-        username = input("Enter username: ")
-        password = input("Enter password: ")
+        username = usr
+        password = pswd
         hashedPass = createPwdHash(password)
 
         # Condition to track if Username was found
@@ -86,18 +85,19 @@ class UserAccount:
                 if DEBUG:
                     print("Username Valid")
                 foundUser = True # Set to true so we dont' trigger an 'invalid user' condition
-                if user_row[0][4] == hashedPass:
+                if user_row[0][3] == hashedPass:
                     # Correct pass scenario
                     if DEBUG:
                         print("Password Correct")
+                    return "Success"
                 else:
                     # Incorrect pass scenario
                     if DEBUG:
                         print("Password Incorrect")
-                break
+                    return "Invalid"
         # If still false at the end, the user wasn't found.
         if foundUser == False:
-            print("invalid Username")
+            return "Invalid"
 
 
     # Function to alter passwords (or any information, eventually)
