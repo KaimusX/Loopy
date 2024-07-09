@@ -75,7 +75,7 @@ class SimpleAccountManagerUI:
         tk.Button(self.main_frame, text="Register", command=self.register).pack(pady=10)
         tk.Button(self.main_frame, text="Back", command=self.go_back).pack(pady=10)
 
-    def register(self):
+    def finishRegister(self):
         name = self.name_entry.get()
         email = self.email_entry.get()
         username = self.username_entry.get()
@@ -89,30 +89,64 @@ class SimpleAccountManagerUI:
             messagebox.showerror("Registration", "Invalid Password.")           #
 #################################################################################
         else:
-            self.qr_code_popup(username)
             try:
                 UsersDatabase.UserAccount.createUserRow(username, name, email, password)
                 messagebox.showinfo("Register", "Registration successful!")
                 self.create_widgets()
             except ValueError as e:
                 messagebox.showerror("Register", str(e))
+        
+
+    def register(self):
+        email = self.email_entry.get()
+        username = self.username_entry.get()
+        password = self.password_entry.get()
+#################################################################################
+        if not InputValidation.validate_username(username):                     #
+            messagebox.showerror("Registration", "Invalid username.")           #
+        elif not InputValidation.is_valid_email(email):                         #
+            messagebox.showerror("Registration", "Invalid email.")              #
+        elif not InputValidation.password_check(password):                      #
+            messagebox.showerror("Registration", "Invalid Password.")           #
+#################################################################################
+        else:
+
+            cwd = os.getcwd()
+            qr_path = os.path.join(cwd, 'qr.png')
+            
+            image1 = Image.open(qr_path)
+            test = ImageTk.PhotoImage(image1)
+            label1 = tk.Label(image=test)
+            label1.image = test
+            
+            label1.place(x=600, y=125)
+            
+            tk.Button(self.main_frame, text="Done", command=self.ugh).pack(pady=10)
+            
+            #Button = ready = True
+            
+            # if ready:
+            #     try:
+            #         UsersDatabase.UserAccount.createUserRow(username, name, email, password)
+            #         messagebox.showinfo("Register", "Registration successful!")
+            #         self.create_widgets()
+            #     except ValueError as e:
+            #         messagebox.showerror("Register", str(e))
 #######################################################################################################################
     def qr_code_popup(self, username):
         top = tk.Toplevel(self.master)
         top.title("2-Factor Authentication")
         top.geometry("300x400")
 
-        #cwd = os.getcwd()
-        #qr_path = os.path.join(cwd, 'qr.png')
-        #qr_size = qr_path.resize((200, 200), Image.ANTIALIAS)
-        qr_photo = ImageTk.PhotoImage(file="qr.png")
-        self.master.create_image(20,20, image = qr_photo)
-
-        tk.Label(self.main_frame, text="Scan the QR code to enable 2-Factor Authentication").pack()
-
-        #tk.Label(top, text="Scan the QR code to enable 2-Factor Authentication").pack(pady=10)
-        #tk.Label(top, image=qr_photo).pack(pady=10)
-        #tk.Button(top, text="Done", command=top.destroy).pack(pady=20)
+        cwd = os.getcwd()
+        qr_path = os.path.join(cwd, 'qr.png')
+        
+        image1 = Image.open(qr_path)
+        test = ImageTk.PhotoImage(image1)
+        label1 = tk.Label(image=test)
+        label1.image = test
+        
+        label1.place(x=400, y=250)
 
 #######################################################################################################################
     def show_account_screen(self, user_info):
@@ -164,6 +198,7 @@ def main():
     if not os.path.isfile('Database.csv'):
         UsersDatabase.UserAccount.createDataframe()
     root = tk.Tk()
+    root.minsize(1000, 500)
     app = SimpleAccountManagerUI(root)
     root.mainloop()
 
