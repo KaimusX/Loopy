@@ -4,6 +4,7 @@ from moviepy.editor import *
 import mergeVid as mv
 import create_playlist_GUI
 import Select_Playlist
+import UpdatePlaylist
 import time
 from cvplayerlocal import VideoPlayer
 import Instructions_GUI
@@ -83,6 +84,7 @@ def Home():
     while run:
         #initialize buttons
         Create = Button(scrn, 'Create Playlist', 100, 200, True)
+        Edit = Button(scrn, 'Edit Playlist', 400, 200, True)
         Select = Button(scrn, 'Select Playlist', 700, 200, True)
             
         if pygame.mouse.get_pressed()[0] and new_press:
@@ -97,6 +99,8 @@ def Home():
                 run = False
         if Create.check_click():
             create_playlist_GUI.create_playlist()
+        if Edit.check_click():
+            UpdatePlaylist.main()
         if Select.check_click():
             name = Select_Playlist.Playlists()
             run = False

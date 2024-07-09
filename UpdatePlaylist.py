@@ -87,6 +87,7 @@ def update_playlist_videos(md5Hash):
                 # Generate and store MD5 hash
                 df.at[index, column] = md5Hash
                 print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
+                sg.popup('Update Complete', 'Video Added To Playlist Successfully.')
                 updated = True
                 break  # Stop after updating the first empty video column
         if not updated:
@@ -101,14 +102,22 @@ def update_playlist_videos(md5Hash):
 def run_gui(playlist_names):
     sg.theme('LightGrey1')
     window = sg.Window('Playlist Manager', create_layout(playlist_names))
-    event, values = window.read()
-    playlist_name = values['-PLAYLISTS-']  # keep this for code to run
-    if event == 'Add to Playlist':
-        playlist_name = values['-PLAYLISTS-']
-        # Error handling for missing keys
-        video_title = values[f'-YOUTUBE_URL-{0}']
-        md5Hash = add_video_to_playlist(playlist_name, video_title)
-        update_playlist_videos(md5Hash)
+    Loop = True
+    while Loop:
+        event, values = window.read()
+        
+        if event == sg.WIN_CLOSED or event == 'Quit':  # Add a 'Quit' button or handle window close
+            break  # Exit the loop
+        
+        if event == 'Add to Playlist':
+            playlist_name = values['-PLAYLISTS-']
+            # Error handling for missing keys
+            video_title = values[f'-YOUTUBE_URL-{0}']
+            md5Hash = add_video_to_playlist(playlist_name, video_title)
+            update_playlist_videos(md5Hash)
+        
+        if event == 'Back To Home':
+            Loop = False
     window.close()
 
 
