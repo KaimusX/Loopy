@@ -3,6 +3,7 @@ from tkinter import messagebox
 import bcrypt
 import UsersDatabase
 import os
+import InputValidation
 
 class SimpleAccountManagerUI:
     def __init__(self, master):
@@ -39,10 +40,16 @@ class SimpleAccountManagerUI:
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
+#####################################################################
+        if not InputValidation.validate_username(username):         #
+            messagebox.showerror("Login", "Invalid username.")      #
+        elif not InputValidation.password_check(password):          #
+            messagebox.showerror("Login", "Invalid Password.")      #
+#####################################################################
         if UsersDatabase.UserAccount.checkUser(username, password) == "Success":
             messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!") # NEED TO IMPLEMENT NEXT STEP HERE!!!!!!
         else:
-            messagebox.showerror("Login", "Invalid username or password.")
+            messagebox.showerror("Login", "Username or password not found.")
 
     def show_register_screen(self):
         self.clear_frame()
@@ -72,12 +79,21 @@ class SimpleAccountManagerUI:
         email = self.email_entry.get()
         username = self.username_entry.get()
         password = self.password_entry.get()
-        try:
-            UsersDatabase.UserAccount.createUserRow(username, name, email, password)
-            messagebox.showinfo("Register", "Registration successful!")
-            self.create_widgets()
-        except ValueError as e:
-            messagebox.showerror("Register", str(e))
+#################################################################################
+        if not InputValidation.validate_username(username):                     #
+            messagebox.showerror("Registration", "Invalid username.")           #
+        elif not InputValidation.is_valid_email(email):                         #
+            messagebox.showerror("Registration", "Invalid email.")              #
+        elif not InputValidation.password_check(password):                      #
+            messagebox.showerror("Registration", "Invalid Password.")           #
+#################################################################################
+        else:
+            try:
+                UsersDatabase.UserAccount.createUserRow(username, name, email, password)
+                messagebox.showinfo("Register", "Registration successful!")
+                self.create_widgets()
+            except ValueError as e:
+                messagebox.showerror("Register", str(e))
 
     def show_account_screen(self, user_info):
         self.clear_frame()
