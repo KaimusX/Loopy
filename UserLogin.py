@@ -3,7 +3,7 @@ from tkinter import messagebox
 import UsersDatabase
 import os
 import InputValidation
-import Image, Imagetk
+import Image, ImageTK
 
 class SimpleAccountManagerUI:
     def __init__(self, master):
@@ -108,7 +108,7 @@ def qr_code_popup(self, username):
     if user:
         qr_path = os.path.join(cwd, 'qr.png')
         #qr_size = qr_path.resize((200, 200), Image.ANTIALIAS)
-        qr_photo = ImageTk.PhotoImage(qr_path)
+        qr_photo = ImageTK.PhotoImage(qr_path)
 
         tk.Label(top, text="Scan the QR code to enable 2-Factor Authentication").pack(pady=10)
         tk.Label(top, image=qr_photo).pack(pady=10)
