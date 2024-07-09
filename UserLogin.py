@@ -4,36 +4,10 @@ import bcrypt
 import UsersDatabase
 import os
 
-class SimpleAccountManager:
-    def __init__(self):
-        self.accounts = {}
-
-    def add_account(self, username, password, name, email):
-        if username in self.accounts:
-            raise ValueError("Username already exists.")
-        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-        self.accounts[username] = {
-            'name': name,
-            'email': email,
-            'password_hash': password_hash
-        }
-
-    def check_credentials(self, username, password):
-        if username in self.accounts:
-            stored_hash = self.accounts[username]['password_hash']
-            return bcrypt.checkpw(password.encode('utf-8'), stored_hash)
-        return False
-
-    def get_user_info(self, username):
-        if username in self.accounts:
-            return self.accounts[username]
-        return None
-
 class SimpleAccountManagerUI:
     def __init__(self, master):
         self.master = master
         self.master.title("Simple Account Management System")
-        self.manager = SimpleAccountManager()
         self.screen_stack = []  # Stack to keep track of the screens
         self.create_widgets()
 
@@ -66,9 +40,7 @@ class SimpleAccountManagerUI:
         username = self.username_entry.get()
         password = self.password_entry.get()
         if UsersDatabase.UserAccount.checkUser(username, password) == "Success":
-            messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!")
-            user_info = self.manager.get_user_info(username)
-            self.show_account_screen(user_info)
+            messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!") # NEED TO IMPLEMENT NEXT STEP HERE!!!!!!
         else:
             messagebox.showerror("Login", "Invalid username or password.")
 
@@ -102,7 +74,6 @@ class SimpleAccountManagerUI:
         password = self.password_entry.get()
         try:
             UsersDatabase.UserAccount.createUserRow(username, name, email, password)
-            self.manager.add_account(username, password, name, email)
             messagebox.showinfo("Register", "Registration successful!")
             self.create_widgets()
         except ValueError as e:
