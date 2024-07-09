@@ -6,6 +6,8 @@ import create_playlist_GUI
 import Select_Playlist
 import time
 from cvplayerlocal import VideoPlayer
+import Instructions_GUI
+import threading
 
 # Initialize pygame
 pygame.init()
@@ -60,7 +62,10 @@ def videoPlayer(playlistName):
         if player.state == 'quit':
             pygame.init()
             Home()
-
+def RunGUI():
+    gui = Instructions_GUI.InstructionsGUI()
+    # Call the create_gui method to create the instructions GUI
+    gui.create_gui()
 # Function to play a video from the playlist
 def Home():
     # Initialize pygame
@@ -95,6 +100,9 @@ def Home():
         if Select.check_click():
             name = Select_Playlist.Playlists()
             run = False
+            # Create an instance of the InstructionsGUI class
+            gui_thread = threading.Thread(target=RunGUI)
+            gui_thread.start()
             #pygame.quit()
             videoPlayer(name)
                 
@@ -102,7 +110,6 @@ def Home():
         
     # Clean up
     pygame.display.quit()
-
 
 if __name__ == "__main__":
     pygame.display.init()
