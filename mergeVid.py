@@ -1,10 +1,7 @@
-import PySimpleGUI as sg
-import pygame
 from moviepy.editor import *     
 import os
 import csv
 import hashlib
-import sys
 
 class mergeVid:
     """

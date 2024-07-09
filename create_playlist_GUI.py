@@ -87,7 +87,6 @@ def create_playlist():
                             break
 
                         if os.path.isfile(local_path):
-                            video_entries.append(('Local', local_path))
                             # If a playlist entry is not empty and a directory pathway, append the entry
                             # Check if the local file is an MP4 file
                             if local_path.lower().endswith('.mp4'):

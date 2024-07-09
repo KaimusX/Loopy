@@ -18,7 +18,6 @@ class fileDownloader:
         else:
             video_path = self.download_local_video(video, output_path)
         #Break off the audio from the video
-        print (video_path)
         audio_path = self.break_off_Audio(video_path)
         #Calculate the MD5 hash of the downloaded video
         md5HashVid = self.calculate_md5(video_path)
