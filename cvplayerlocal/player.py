@@ -120,7 +120,7 @@ class VideoPlayer:
             pressed_key = cv2.waitKey(waitkey) & 0xFF
             if pressed_key == ord('q') or pressed_key == ord('Q') or pressed_key == 27:
                 self.player.close_player()
-                self.state = 'eof'
+                self.state = 'quit'
                 os.remove("my_concatenation.mp4")
                 break
             if self.key_controls and pressed_key != 255:
