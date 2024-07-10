@@ -160,6 +160,7 @@ class SimpleAccountManagerUI:
         if TwoFactor.verify_otp(totp, otp_code):
             messagebox.showinfo("2FA", f"2FA successful! You are successfully logged in {usr}!")
             self.create_widgets()  
+            # Whatever the function is called(usr)
         else:
             messagebox.showerror("2FA", "Invalid 2FA code. Please try again.")
 
