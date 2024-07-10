@@ -3,7 +3,11 @@ from tkinter import messagebox
 import UsersDatabase
 import os
 import InputValidation
+import TwoFactor
 from PIL import Image, ImageTk
+import Home_Page
+
+TEMP_OTP = None
 
 class SimpleAccountManagerUI:
     def __init__(self, master):
@@ -40,14 +44,13 @@ class SimpleAccountManagerUI:
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
-#####################################################################
-        if not InputValidation.validate_username(username):         #
-            messagebox.showerror("Login", "Invalid username.")      #
-        elif not InputValidation.password_check(password):          #
-            messagebox.showerror("Login", "Invalid Password.")      #
-#####################################################################
+
+        if not InputValidation.validate_username(username):         
+            messagebox.showerror("Login", "Invalid username.")      
+        elif not InputValidation.password_check(password):          
+            messagebox.showerror("Login", "Invalid Password.")      
+
         if UsersDatabase.UserAccount.checkUser(username, password) == "Success":
-            #messagebox.showinfo("Login", f"Login successful!\nWelcome {username}!") # NEED TO IMPLEMENT NEXT STEP HERE!!!!!!
             self.show_2fa_screen(username) # Go to 2FA to check it, then we can say success and let them through. We can maybe put the success on it's own function.
         else:
             messagebox.showerror("Login", "Username or password not found.")
@@ -80,75 +83,55 @@ class SimpleAccountManagerUI:
         email = self.email_entry.get()
         username = self.username_entry.get()
         password = self.password_entry.get()
-#################################################################################
-        if not InputValidation.validate_username(username):                     #
-            messagebox.showerror("Registration", "Invalid username.")           #
-        elif not InputValidation.is_valid_email(email):                         #
-            messagebox.showerror("Registration", "Invalid email.")              #
-        elif not InputValidation.password_check(password):                      #
-            messagebox.showerror("Registration", "Invalid Password.")           #
-#################################################################################
+
+        if not InputValidation.validate_username(username):                     
+            messagebox.showerror("Registration", "Invalid username.")           
+        elif not InputValidation.is_valid_email(email):                         
+            messagebox.showerror("Registration", "Invalid email.")              
+        elif not InputValidation.password_check(password):                      
+            messagebox.showerror("Registration", "Invalid Password.")           
+
         else:
+            global TEMP_OTP
             try:
-                UsersDatabase.UserAccount.createUserRow(username, name, email, password)
+                UsersDatabase.UserAccount.createUserRow(username, name, email, password, TEMP_OTP)
                 messagebox.showinfo("Register", "Registration successful!")
                 self.create_widgets()
             except ValueError as e:
                 messagebox.showerror("Register", str(e))
+            cwd = os.getcwd()
+            qr_path = os.path.join(cwd, 'qr.png')
+            os.remove(qr_path)
+            TEMP_OTP = None
         
 
     def register(self):
         email = self.email_entry.get()
         username = self.username_entry.get()
         password = self.password_entry.get()
-#################################################################################
-        if not InputValidation.validate_username(username):                     #
-            messagebox.showerror("Registration", "Invalid username.")           #
-        elif not InputValidation.is_valid_email(email):                         #
-            messagebox.showerror("Registration", "Invalid email.")              #
-        elif not InputValidation.password_check(password):                      #
-            messagebox.showerror("Registration", "Invalid Password.")           #
-#################################################################################
+
+        if not InputValidation.validate_username(username):                     
+            messagebox.showerror("Registration", "Invalid username.")           
+        elif not InputValidation.is_valid_email(email):                         
+            messagebox.showerror("Registration", "Invalid email.")              
+        elif not InputValidation.password_check(password):                      
+            messagebox.showerror("Registration", "Invalid Password.")           
         else:
+            global TEMP_OTP
+            TEMP_OTP = TwoFactor.otp_gen(username)
 
             cwd = os.getcwd()
             qr_path = os.path.join(cwd, 'qr.png')
             
             image1 = Image.open(qr_path)
             test = ImageTk.PhotoImage(image1)
-            label1 = tk.Label(image=test)
+            label1 = tk.Label(image = test)
             label1.image = test
             
-            label1.place(x=600, y=125)
+            label1.place(x=550, y=70)
             
-            tk.Button(self.main_frame, text="Done", command=self.ugh).pack(pady=10)
-            
-            #Button = ready = True
-            
-            # if ready:
-            #     try:
-            #         UsersDatabase.UserAccount.createUserRow(username, name, email, password)
-            #         messagebox.showinfo("Register", "Registration successful!")
-            #         self.create_widgets()
-            #     except ValueError as e:
-            #         messagebox.showerror("Register", str(e))
-#######################################################################################################################
-    def qr_code_popup(self, username):
-        top = tk.Toplevel(self.master)
-        top.title("2-Factor Authentication")
-        top.geometry("300x400")
+            tk.Button(self.main_frame, text="Done", command=self.finishRegister).pack(pady=10)
 
-        cwd = os.getcwd()
-        qr_path = os.path.join(cwd, 'qr.png')
-        
-        image1 = Image.open(qr_path)
-        test = ImageTk.PhotoImage(image1)
-        label1 = tk.Label(image=test)
-        label1.image = test
-        
-        label1.place(x=400, y=250)
-
-#######################################################################################################################
     def show_account_screen(self, user_info):
         self.clear_frame()
         self.screen_stack.append(lambda: self.show_account_screen(user_info))  # Push the current screen function to the stack
@@ -174,9 +157,11 @@ class SimpleAccountManagerUI:
 
     def verify_2fa(self,usr):
         otp_code = self.otp_entry.get()
-        if UsersDatabase.UserAccount.verify_otp(otp_code):
+        totp = UsersDatabase.UserAccount.getOTP(usr)
+        if TwoFactor.verify_otp(totp, otp_code):
             messagebox.showinfo("2FA", f"2FA successful! You are successfully logged in {usr}!")
             self.create_widgets()  
+            Home_Page.Home(usr)
         else:
             messagebox.showerror("2FA", "Invalid 2FA code. Please try again.")
 

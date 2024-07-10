@@ -24,11 +24,11 @@ class UserAccount:
 
     # Dataframe (csv/database) creation
     def createDataframe():
-        df = pd.DataFrame({'Username': [], 'Name': [], 'Email': [], 'Password': []})
+        df = pd.DataFrame({'Username': [], 'Name': [], 'Email': [], 'Password': [], 'OTP': []})
         df.to_csv('Database.csv', index=False)
 
     # Account creation
-    def createUserRow(usr,nm,em,psw):
+    def createUserRow(usr,nm,em,psw,otp):
         # Loading the dataframe
         df = pd.read_csv('Database.csv')
 
@@ -42,7 +42,7 @@ class UserAccount:
         HashedPass = createPwdHash(Pass)
 
         # Complete row of data
-        newRow = {'Username':Username, 'Name': Name, 'Email': Email, 'Password': HashedPass}
+        newRow = {'Username':Username, 'Name': Name, 'Email': Email, 'Password': HashedPass, 'OTP': otp}
 
         # Row added to the file.
         df = df._append(newRow, ignore_index=True)
@@ -135,15 +135,52 @@ class UserAccount:
         
         print("Password updated successfully.")
 
+    def getOTP(usr):
+        # Get dataframe first
+        cwd = os.getcwd()
+        users_file = os.path.join(cwd, 'Database.csv')
+        users = []
+        users_3d = []
+
+        # Read the users CSV and convert the CSV database into a 3D array with proper columns and rows,
+        # excluding the header.
+        try:
+            with open(users_file, 'r') as file:
+                reader = csv.reader(file)
+                next(reader)  # Skip the header
+                users = [row for row in reader]
+                users_3d = [[row] for row in users]
+        except FileNotFoundError:
+            print(f"Error: {users_file} not found.")
+        except Exception as e:
+            print(f"An error occurred while reading {users_file}: {e}")
+
+        # Temp holder for otp value
+        otp = None
+
+        # Condition to track if Username was found
+        foundUser = False
+        
+        # Set up 3D array to search through
+        for user_row in users_3d:
+            # Username found scenario
+            if user_row[0][0] == usr:
+                foundUser = True
+                otp = user_row[0][4]
+                return otp
+        # If still false at the end, the user wasn't found.
+        if foundUser == False:
+            return None
+
 # Main code, uncomment as needed for testing.
-def main():
-    if not os.path.isfile('Database.csv'):
-        UserAccount.createDataframe()
-    UserAccount.createUserRow()
-    UserAccount.checkUser()
-    UserAccount.changePass()
-    UserAccount.checkUser()
+# def main():
+#     if not os.path.isfile('Database.csv'):
+#         UserAccount.createDataframe()
+#     UserAccount.createUserRow()
+#     UserAccount.checkUser()
+#     UserAccount.changePass()
+#     UserAccount.checkUser()
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
