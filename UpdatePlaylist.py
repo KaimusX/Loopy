@@ -77,22 +77,24 @@ def add_video_to_playlist(playlist_name, video_title):
     return(hash_md5.hexdigest())
     
 #add MD5 hash to the playlist
-def update_playlist_videos(md5Hash):
+def update_playlist_videos(md5Hash, playlist_name):
+    print(f'Updating playlist "{playlist_name}" with MD5 hash {md5Hash}.')
     df = pd.read_csv('playlists.csv')
     video_columns = [f'Video{i}' for i in range(1, 11)]
         
     for index, row in df.iterrows():
-        updated = False
-        for column in video_columns:
-            if pd.isna(row[column]):
-                # Generate and store MD5 hash
-                df.at[index, column] = md5Hash
-                print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
-                sg.popup('Update Complete', 'Video Added To Playlist Successfully.')
-                updated = True
-                break  # Stop after updating the first empty video column
-        if not updated:
-            sg.popup_error(f'Error: No open space found in playlist "{row["PlayList_Name"]}" for new videos.')
+        if row['PlayList_Name'] == playlist_name:
+            updated = False
+            for column in video_columns:
+                if pd.isna(row[column]):
+                    # Generate and store MD5 hash
+                    df.at[index, column] = md5Hash
+                    print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
+                    sg.popup('Update Complete', 'Video Added To Playlist Successfully.')
+                    updated = True
+                    break  # Stop after updating the first empty video column
+            if not updated:
+                sg.popup_error(f'Error: No open space found in playlist "{row["PlayList_Name"]}" for new videos.')
         
     # Save the updated DataFrame back to the CSV file
     df.to_csv('playlists.csv', index=False)
@@ -115,7 +117,7 @@ def run_gui(playlist_names, username):
             video_title = values[f'-YOUTUBE_URL-{0}']
             if isValidYoutube(video_title):
                 md5Hash = add_video_to_playlist(playlist_name, video_title)
-                update_playlist_videos(md5Hash)
+                update_playlist_videos(md5Hash, playlist_name)
             else: 
                 sg.popup('Error', 'Invalid YouTube URL. Please check and try again.')
         if event == 'Back To Home':
