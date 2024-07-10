@@ -105,8 +105,8 @@ def Home(username):
             name = Select_Playlist.Playlists(username)
             run = False
             # Create an instance of the InstructionsGUI class
-            gui_thread = threading.Thread(target=RunGUI)
-            gui_thread.start()
+            #gui_thread = threading.Thread(target=RunGUI)
+            #gui_thread.start()
             #pygame.quit()
             videoPlayer(name, username)
                 
