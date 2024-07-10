@@ -83,9 +83,13 @@ class SimpleAccountManagerUI:
         self.username_entry = tk.Entry(self.main_frame)
         self.username_entry.pack()
 
+        tk.Label(self.main_frame, text="Username must be alphanumeric and between 5 to 20 characters.").pack()
+
         tk.Label(self.main_frame, text="Password").pack()
         self.password_entry = tk.Entry(self.main_frame, show="*")
         self.password_entry.pack()
+
+        tk.Label(self.main_frame, text="Password length should contain 8-20 characters, have at least one number, \nhave at least one uppercase letter, have at least one lowercase letter, and have at least one of the symbols: $, @, #, %.").pack()
 
         tk.Button(self.main_frame, text="Register", command=self.register).pack(pady=10)
         tk.Button(self.main_frame, text="Back", command=self.go_back).pack(pady=10)
