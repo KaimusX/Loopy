@@ -5,6 +5,7 @@ import os
 import InputValidation
 import TwoFactor
 from PIL import Image, ImageTk
+import Home_Page
 
 TEMP_OTP = None
 
@@ -160,7 +161,7 @@ class SimpleAccountManagerUI:
         if TwoFactor.verify_otp(totp, otp_code):
             messagebox.showinfo("2FA", f"2FA successful! You are successfully logged in {usr}!")
             self.create_widgets()  
-            # Whatever the function is called(usr)
+            Home_Page.Home(usr)
         else:
             messagebox.showerror("2FA", "Invalid 2FA code. Please try again.")
 
