@@ -6,6 +6,7 @@ import InputValidation
 import TwoFactor
 from PIL import Image, ImageTk
 import Home_Page
+import playlist as pl
 
 counter = 0
 last_usr = ''
@@ -136,6 +137,8 @@ class SimpleAccountManagerUI:
 def main():
     if not os.path.isfile('Database.csv'):
         UsersDatabase.UserAccount.createDataframe()
+    if not os.path.isfile('playlists.csv'):
+        pl.Playlist.create_dataframe()
     root = tk.Tk()
     root.minsize(1000, 500)
     app = SimpleAccountManagerUI(root)
