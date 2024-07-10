@@ -7,6 +7,7 @@ from pytube import YouTube
 import hashlib
 import pandas as pd
 import os
+from moviepy.editor import VideoFileClip
 
 # Initialize pygame
 pygame.init()
@@ -67,20 +68,38 @@ def add_video_to_playlist(playlist_name, video_title):
         print(f'Download completed: {yt.title}')
     except Exception as e:
         print(f'An error occurred: {e}')
-    print(playlist_name, video_title)  
+    
+    # Extracting audio from the video
+    print(f'Extracting audio from {video_path}')
+    base_name = os.path.splitext(os.path.basename(video_path))[0] + '_audio.wav'
+    output_dir = 'Audio_Media'
+    output_path = os.path.join(output_dir, base_name)
+    os.makedirs(output_dir, exist_ok=True)
+    video = VideoFileClip(video_path)
+    video.audio.write_audiofile(output_path)  
+    
+    # Hashing the audio
+    hash_md5 = hashlib.md5()
+    with open(output_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    audio_md5 = hash_md5.hexdigest()
+    print(f'MD5 hash of the audio: {audio_md5}')
     
     #hash the video
     hash_md5 = hashlib.md5()
     with open(video_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
-    return(hash_md5.hexdigest())
+    video_md5 = hash_md5.hexdigest()
+    return(video_md5, audio_md5)
     
 #add MD5 hash to the playlist
 def update_playlist_videos(md5Hash, playlist_name):
     print(f'Updating playlist "{playlist_name}" with MD5 hash {md5Hash}.')
     df = pd.read_csv('playlists.csv')
     video_columns = [f'Video{i}' for i in range(1, 11)]
+    audio_columns = [f'Audio{i}' for i in range(1, 11)]
         
     for index, row in df.iterrows():
         if row['PlayList_Name'] == playlist_name:
@@ -88,13 +107,25 @@ def update_playlist_videos(md5Hash, playlist_name):
             for column in video_columns:
                 if pd.isna(row[column]):
                     # Generate and store MD5 hash
-                    df.at[index, column] = md5Hash
+                    df.at[index, column] = md5Hash[0]
                     print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
                     sg.popup('Update Complete', 'Video Added To Playlist Successfully.')
                     updated = True
                     break  # Stop after updating the first empty video column
             if not updated:
                 sg.popup_error(f'Error: No open space found in playlist "{row["PlayList_Name"]}" for new videos.')
+            #audio
+            for column in audio_columns:
+                if pd.isna(row[column]):
+                    # Generate and store MD5 hash
+                    df.at[index, column] = md5Hash[1]
+                    print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
+                    sg.popup('Update Complete', 'Audio Added To Playlist Successfully.')
+                    updated = True
+                    break  # Stop after updating the first empty audio column
+            if not updated:
+                sg.popup_error(f'Error: No open space found in playlist "{row["PlayList_Name"]}" for new audios.')
+            break  # Stop the loop after updating the target playlist or if no space is available
         
     # Save the updated DataFrame back to the CSV file
     df.to_csv('playlists.csv', index=False)
