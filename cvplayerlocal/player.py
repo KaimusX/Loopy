@@ -129,10 +129,10 @@ class VideoPlayer:
                 self.state = 'quit'
                 os.remove("my_concatenation.mp4")
                 break
-            if pressed_key == ord('x') or pressed_key == ord('X'):
-                print("RUN")
-                gui_thread = threading.Thread(target=RunGUI, args=(), daemon=True)
-                gui_thread.start()  
+            #if pressed_key == ord('x') or pressed_key == ord('X'):
+                #print("RUN")
+                #gui_thread = threading.Thread(target=RunGUI, args=(), daemon=True)
+                #gui_thread.start()  
             if self.key_controls and pressed_key != 255:
                 if pressed_key == ord(' ') or pressed_key == ord('k') or pressed_key == ord('K'):
                     self.pause = not self.pause
