@@ -4,6 +4,10 @@ import PySimpleGUI as sg
 import pygame
 import os
 import hashlib
+import re
+import csv
+
+DEBUG = False
 
 
 # Pasword hashing function
@@ -20,75 +24,126 @@ class UserAccount:
 
     # Dataframe (csv/database) creation
     def createDataframe():
-        df = pd.DataFrame({'Username': [], 'Displayname': [], 'Name': [], 'Email': [], 'Role': [], 'Password': []})
+        df = pd.DataFrame({'Username': [], 'Name': [], 'Email': [], 'Password': []})
         df.to_csv('Database.csv', index=False)
 
     # Account creation
-    def createUserRow():
+    def createUserRow(usr,nm,em,psw):
         # Loading the dataframe
         df = pd.read_csv('Database.csv')
 
         # Temporary inputs until we have a front end to submit information through
-        Username = 'invalid'
-        while Username == 'invalid':
-            Username = input("Username: ")
-            for x in ['&','?','/','\'','\\','|','[',']','{','}','%',' ']:
-                if x in Username:
-                    Username = 'invalid'
-        DisplayName = input("Display name: ")
-        Name = input("Full name: ")
-        Email = input("Email address: ")
-        Role = input("Role: ")
-        Pass = input("Password: ")
+        Username = usr
+        Name = nm
+        Email = em
+        Pass = psw
 
-        # Temproary hash skip, until hashing is implemented
+        # Hash the password so we don't transfer it in plain text
         HashedPass = createPwdHash(Pass)
 
         # Complete row of data
-        newRow = {'Username':Username, 'Displayname': DisplayName, 'Name': Name, 'Email': Email, 'Role': Role, 'Password': HashedPass}
+        newRow = {'Username':Username, 'Name': Name, 'Email': Email, 'Password': HashedPass}
 
         # Row added to the file.
         df = df._append(newRow, ignore_index=True)
         df.to_csv('Database.csv', index=False)
 
-    # Sudo log in function
-    def checkUser():
-        # Get dataframe first
-        df = pd.read_csv('Database.csv')
 
-        # Input lo in info
-        username = input("Enter username: ")
-        password = input("Enter password: ")
+    # Sudo log in function
+    def checkUser(usr, pswd):
+        # Get dataframe first
+        cwd = os.getcwd()
+        users_file = os.path.join(cwd, 'Database.csv')
+        users = []
+        users_3d = []
+
+        # Read the users CSV and convert the CSV database into a 3D array with proper columns and rows,
+        # excluding the header.
+        try:
+            with open(users_file, 'r') as file:
+                reader = csv.reader(file)
+                next(reader)  # Skip the header
+                users = [row for row in reader]
+                users_3d = [[row] for row in users]
+        except FileNotFoundError:
+            print(f"Error: {users_file} not found.")
+        except Exception as e:
+            print(f"An error occurred while reading {users_file}: {e}")
+
+        # Input log-in info
+        username = usr
+        password = pswd
         hashedPass = createPwdHash(password)
+
+        # Condition to track if Username was found
+        foundUser = False
         
-        # Check if username is valid
-        if username not in df['Database.csv'].values:
-            print('Invalid Username.')
+        # Set up 3D array to search through
+        for user_row in users_3d:
+            # Username found scenario
+            if user_row[0][0] == username:
+                if DEBUG:
+                    print("Username Valid")
+                foundUser = True # Set to true so we dont' trigger an 'invalid user' condition
+                if user_row[0][3] == hashedPass:
+                    # Correct pass scenario
+                    if DEBUG:
+                        print("Password Correct")
+                    return "Success"
+                else:
+                    # Incorrect pass scenario
+                    if DEBUG:
+                        print("Password Incorrect")
+                    return "Invalid"
+        # If still false at the end, the user wasn't found.
+        if foundUser == False:
+            return "Invalid"
+
+
+    # Function to alter passwords (or any information, eventually)
+    def changePass():
+        email = input("Enter email: ")
+        df = pd.read_csv('Database.csv')
+        
+        # Find the row where the email matches
+        row_index = df.index[df['Email'] == email].tolist()
+        
+        if not row_index:
+            print(f"No user found with email '{email}'")
             return
         
-        # If it is, grab the row it relates too
-        userRow = df.loc[df['Username'] == username]
+        # Row index
+        row_index = row_index[0]
         
-        # Check if password has matches
-        if df.loc[df['Username'] == username,'Password'] == hashedPass:
-            pass
-            # Log in
+        oldPass = input("Enter old password: ")
+        newPass = input("Enter new password: ")
+        
+        # Check if the old password matches
+        if createPwdHash(oldPass) != df.at[row_index, 'Password']:
+            print("Incorrect old password. Password change failed.")
+            return
+        
+        if createPwdHash(newPass) == df.at[row_index, 'Password']:
+            print("This password is alreay in use. Password change failed.")
+            return
+        
+        # Update the password for the found row
+        df.at[row_index, 'Password'] = createPwdHash(newPass)
+        
+        # Write back to the CSV file
+        df.to_csv('Database.csv', index=False)
+        
+        print("Password updated successfully.")
+
+# Main code, uncomment as needed for testing.
+# def main():
+#     if not os.path.isfile('Database.csv'):
+#         UserAccount.createDataframe()
+#     UserAccount.createUserRow()
+#     UserAccount.checkUser()
+#     UserAccount.changePass()
+#     UserAccount.checkUser()
 
 
-
-
-
-
-
-
-
-
-# Main code, uncomment as needed.
-def main():
-    #UserAccount.createDataframe()
-    #UserAccount.createUserRow()
-    #UserAccount.checkUser()
-    pass
-
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

@@ -1,12 +1,13 @@
+from pytube import YouTube
 import PySimpleGUI as sg
 import pygame
-import pandas as pd
 import csv
-import PySimpleGUI as sg
-import re 
-import download_video as dv
-import playlist as pl
+import re
+from pytube import YouTube
+import hashlib
+import pandas as pd
 import os
+from moviepy.editor import VideoFileClip
 
 # Initialize pygame
 pygame.init()
@@ -15,23 +16,32 @@ pygame.mixer.init()
 # Set font for buttons (assuming you are using PySimpleGUI for buttons)
 font = pygame.font.Font('freesansbold.ttf', 18)
 
-def is_valid_youtube_url(url):
+def create_user_list(username):
+    playlist_names = []
+    
+    with open('playlists.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['User'] == username:
+                playlist_names.append(row['PlayList_Name'])
+    return playlist_names
+
+def isValidYoutube(url):
     youtube_regex = re.compile(
         r'^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$'
     )
-    return re.match(youtube_regex, url)
-
-
+    youtube_match =  re.match(youtube_regex, url)
+    return bool(youtube_match)
 
 
 # Function to create PySimpleGUI layout for playlists and buttons
-def create_layout(playlist_names):
+def create_layout(playlist_names, username):
+    
+    playlist_names = create_user_list(username)
     
     layout = [
         [sg.Text('Select Playlist to Manage:')],
-        [sg.Listbox(values=playlist_names, size=(30, 6), key='-PLAYLISTS-', enable_events=True)],
-        [sg.Button('Add Video to Playlist'), sg.Button('Rename Playlist')],
-        [sg.Button('Close')]
+        [sg.Combo(playlist_names, key='-PLAYLISTS-')],
     ]
 
     layout.extend([
@@ -41,156 +51,115 @@ def create_layout(playlist_names):
         sg.Radio('Local File Path', f'RADIO{0}', key=f'-LOCAL-{0}'), 
         sg.InputText(key=f'-LOCAL_PATH-{0}', size=(15, 1)), sg.FileBrowse()],
         ])
-
-    layout.append([sg.Button('Submit'), sg.Button('Cancel')])
+    layout.append([sg.Button('Add to Playlist'), sg.Button('Back To Home')])
 
     return layout
 
 # Function to handle adding a song to a playlist
 def add_video_to_playlist(playlist_name, video_title):
-    # Load the DataFrame from the CSV file
+    #downloading the video
+    try:
+        # Create a YouTube object
+        yt = YouTube(video_title)
+         # Get the highest resolution stream available
+        stream = yt.streams.get_highest_resolution()
+        # Download the video
+        video_path = stream.download('Video_Media')
+        print(f'Download completed: {yt.title}')
+    except Exception as e:
+        print(f'An error occurred: {e}')
+    
+    # Extracting audio from the video
+    print(f'Extracting audio from {video_path}')
+    base_name = os.path.splitext(os.path.basename(video_path))[0] + '_audio.wav'
+    output_dir = 'Audio_Media'
+    output_path = os.path.join(output_dir, base_name)
+    os.makedirs(output_dir, exist_ok=True)
+    video = VideoFileClip(video_path)
+    video.audio.write_audiofile(output_path)  
+    
+    # Hashing the audio
+    hash_md5 = hashlib.md5()
+    with open(output_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    audio_md5 = hash_md5.hexdigest()
+    print(f'MD5 hash of the audio: {audio_md5}')
+    
+    #hash the video
+    hash_md5 = hashlib.md5()
+    with open(video_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    video_md5 = hash_md5.hexdigest()
+    return(video_md5, audio_md5)
+    
+#add MD5 hash to the playlist
+def update_playlist_videos(md5Hash, playlist_name):
+    print(f'Updating playlist "{playlist_name}" with MD5 hash {md5Hash}.')
     df = pd.read_csv('playlists.csv')
-
-    # Check if the playlist name exists
-    if playlist_name not in df['PlayList_Name'].values:
-        print(f'Playlist "{playlist_name}" does not exist.')
-        return
-
-    # Add the song to the playlist
-    new_row = {'PlayList_Name': playlist_name, 'Video_Title': video_title}
-    df = df._append(new_row, ignore_index=True)
-
-    print(f'Video "{video_title}" added to playlist "{playlist_name}".')
-
-    # Save the updated DataFrame to the CSV file
+    video_columns = [f'Video{i}' for i in range(1, 11)]
+    audio_columns = [f'Audio{i}' for i in range(1, 11)]
+        
+    for index, row in df.iterrows():
+        if row['PlayList_Name'] == playlist_name:
+            updated = False
+            for column in video_columns:
+                if pd.isna(row[column]):
+                    # Generate and store MD5 hash
+                    df.at[index, column] = md5Hash[0]
+                    print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
+                    sg.popup('Update Complete', 'Video Added To Playlist Successfully.')
+                    updated = True
+                    break  # Stop after updating the first empty video column
+            if not updated:
+                sg.popup_error(f'Error: No open space found in playlist "{row["PlayList_Name"]}" for new videos.')
+            #audio
+            for column in audio_columns:
+                if pd.isna(row[column]):
+                    # Generate and store MD5 hash
+                    df.at[index, column] = md5Hash[1]
+                    print(f'Added MD5 hash to {column} in playlist "{row["PlayList_Name"]}".')
+                    sg.popup('Update Complete', 'Audio Added To Playlist Successfully.')
+                    updated = True
+                    break  # Stop after updating the first empty audio column
+            if not updated:
+                sg.popup_error(f'Error: No open space found in playlist "{row["PlayList_Name"]}" for new audios.')
+            break  # Stop the loop after updating the target playlist or if no space is available
+        
+    # Save the updated DataFrame back to the CSV file
     df.to_csv('playlists.csv', index=False)
+    print("Playlist CSV file has been updated.")
 
-# Function to handle renaming a playlist
-def rename_playlist(current_name, new_name):
-    # Load the DataFrame from the CSV file
-    df = pd.read_csv('playlists.csv')
-
-    # Check if the current playlist name exists
-    if current_name not in df['PlayList_Name'].values:
-        print(f'Playlist "{current_name}" does not exist.')
-        return
-
-    # Rename the playlist
-    df.loc[df['PlayList_Name'] == current_name, 'PlayList_Name'] = new_name
-    print(f'Playlist "{current_name}" renamed to "{new_name}".')
-
-    # Save the updated DataFrame to the CSV file
-    df.to_csv('playlists.csv', index=False)
 
 # Function to handle PySimpleGUI event loop
-def run_gui(playlist_names):
+def run_gui(playlist_names, username):
     sg.theme('LightGrey1')
-    window = sg.Window('Playlist Manager', create_layout(playlist_names))
-    event, values = window.read()
-    playlist_name = values['-PLAYLISTS-'] # keep this for code to run
-
-    while True:
+    window = sg.Window('Playlist Manager', create_layout(playlist_names, username))
+    Loop = True
+    while Loop:
         event, values = window.read()
-        video_entries = []
-        #selected_playlist = values['-PLAYLISTS-']
-        error = False
-
-        youtube_url = values[f'-YOUTUBE_URL-{0}']
-        local_path = values[f'-LOCAL_PATH-{0}']
-        MAX_INPUT_LENGTH = 2048
-
-
-        if event == sg.WINDOW_CLOSED or event == 'Close':
-            break
-        elif event == '-PLAYLISTS-':
-            selected_playlist = values['-PLAYLISTS-'][0]
-            # Handle selection of playlist
-            # Example: You might want to update some UI elements or perform other actions
-
-        elif event == 'Add Video to Playlist': #Changed from add video to playlist
-
-            # Example: Prompt user for song details and add it to selected playlist
-            playlist_name = values['-PLAYLISTS-'][0] if values['-PLAYLISTS-'] else None
-            if playlist_name:
-
-                if values[f'-YOUTUBE-{0}'] and  youtube_url:
-
-                    if len(youtube_url) > MAX_INPUT_LENGTH:
-                        sg.popup_error(f'YouTube URL for Video {1} is too long. Please shorten it.')
-                        error = True
-                        break
-
-                        # If a playlist entry is not empty and contains a YouTube URL:
-                    if is_valid_youtube_url(youtube_url):
-                        video_entries.append(('YouTube', youtube_url))
-                        # If the YouTube URL is valid, append the entry to the Playlist list
-                    else:
-                        sg.popup_error(f'Invalid YouTube URL for Video {1}: {youtube_url}')
-                        error = True
-                        break
-                        # If the YouTube URL is invalid, create a error pop-up and break 
-                        # out of the create playlist window
-                elif values[f'-LOCAL-{0}'] and local_path:
-                        # path = values[f'-LOCAL_PATH-{i}'].replace('/', '\\')
-                    if len(local_path) > MAX_INPUT_LENGTH:
-                        sg.popup_error(f'Local file path for Video {1} is too long. Please shorten it.')
-                        error = True
-                        break
-
-                    if os.path.isfile(local_path):
-                        # If a playlist entry is not empty and a directory pathway, append the entry
-                        # Check if the local file is an MP4 file
-                        if local_path.lower().endswith('.mp4'):
-                            video_entries.append(('Local', local_path))
-                        else:
-                            sg.popup_error(f'File for Video {1} is not an MP4 file: {local_path}')
-                            error = True
-                            break
-
-                    else:
-                        sg.popup_error(f'Invalid local file path for Video {1}: {local_path}')
-                        error = True
-                        break
-        if not error:
-            # Handle the collected data here
-            try:
-                playlist_database = pl.Playlist()
-                #playlist_database.add_video_to_playlist(playlist_name, video_title)
-                #for entry in video_entries:
-                    #source, url_or_path = entry
-                    #dv.fileDownloader(url_or_path, source, playlist_name)
-                sg.popup('Playlist changed successfully!')
-                window.close()
-                break
-
-            except Exception as e:
-                sg.popup_error(f'An error occurred while changing the playlist: {e}')
-
-
-        elif event == 'Rename Playlist':
-            # Example: Prompt user for new name and rename the selected playlist
-            playlist_name = values['-PLAYLISTS-'][0] if values['-PLAYLISTS-'] else None
-            if playlist_name:
-                new_name = sg.popup_get_text('Enter New Playlist Name:')
-                rename_playlist(playlist_name, new_name)
-
+        
+        if event == sg.WIN_CLOSED or event == 'Quit':  # Add a 'Quit' button or handle window close
+            break  # Exit the loop
+        
+        if event == 'Add to Playlist':
+            playlist_name = values['-PLAYLISTS-']
+            video_title = values[f'-YOUTUBE_URL-{0}']
+            if isValidYoutube(video_title):
+                md5Hash = add_video_to_playlist(playlist_name, video_title)
+                update_playlist_videos(md5Hash, playlist_name)
+            else: 
+                sg.popup('Error', 'Invalid YouTube URL. Please check and try again.')
+        if event == 'Back To Home':
+            Loop = False
     window.close()
 
-# Function to create a list of user-specific playlist names
-def create_user_list():
-    playlist_names = []
-    
-    with open('playlists.csv', 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row['User'] == 'User1':
-                playlist_names.append(row['PlayList_Name'])
-    return playlist_names
 
 # Main function to run the GUI application
-def main():
-    playlist_names = create_user_list()
-    run_gui(playlist_names)
+def main(username):
+    playlist_names = create_user_list(username)
+    run_gui(playlist_names, username)
 
 if __name__ == '__main__':
     main()
