@@ -46,7 +46,7 @@ class Button():
         else:
             return False
 
-def videoPlayer(playlistName):
+def videoPlayer(playlistName, username):
     merge = mv.mergeVid()
     #make this selectable instead of a set playlist name later
     merge.build_playlist(playlistName)
@@ -62,13 +62,13 @@ def videoPlayer(playlistName):
         
         if player.state == 'quit':
             pygame.init()
-            Home()
+            Home(username)
 def RunGUI():
     gui = Instructions_GUI.InstructionsGUI()
     # Call the create_gui method to create the instructions GUI
     gui.create_gui()
 # Function to play a video from the playlist
-def Home():
+def Home(username):
     # Initialize pygame
     # Update the screen size
     run = True
@@ -98,17 +98,17 @@ def Home():
                 pygame.quit()
                 run = False
         if Create.check_click():
-            create_playlist_GUI.create_playlist()
+            create_playlist_GUI.create_playlist(username)
         if Edit.check_click():
-            UpdatePlaylist.main()
+            UpdatePlaylist.main(username)
         if Select.check_click():
-            name = Select_Playlist.Playlists()
+            name = Select_Playlist.Playlists(username)
             run = False
             # Create an instance of the InstructionsGUI class
             gui_thread = threading.Thread(target=RunGUI)
             gui_thread.start()
             #pygame.quit()
-            videoPlayer(name)
+            videoPlayer(name, username)
                 
         pygame.display.flip()
         
@@ -117,4 +117,4 @@ def Home():
 
 if __name__ == "__main__":
     pygame.display.init()
-    Home()
+    Home("Dev Test Name")

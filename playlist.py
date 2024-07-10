@@ -7,11 +7,11 @@ class Playlist:
         df = pd.DataFrame({'PlayList_Name': [], 'ID': [], 'User': [], 'Video1': [], 'Video2': [], 'Video3': [], 'Video4': [], 'Video5': [], 'Video6': [], 'Video7': [], 'Video8': [], 'Video9': [], 'Video10': [], 'Audio1': [], 'Audio2': [], 'Audio3': [], 'Audio4': [], 'Audio5': [], 'Audio6': [], 'Audio7': [], 'Audio8': [], 'Audio9': [], 'Audio10': []})
         # Save the DataFrame to a CSV file
         df.to_csv('playlists.csv', index=False)
-    def create_playlist(self, playlist_name):
+    def create_playlist(self, playlist_name, username):
         # Load the DataFrame from the CSV file
         df = pd.read_csv('playlists.csv')
         # Create a new row for the playlist
-        new_row = {'PlayList_Name': playlist_name, 'ID': len(df) + 1, 'User': 'User1', 'Video1': '', 'Video2': '', 'Video3': '', 'Video4': '', 'Video5': '', 'Video6': '', 'Video7': '', 'Video8': '', 'Video9': '', 'Video10': '', 'Audio1': '', 'Audio2': '', 'Audio3': '', 'Audio4': '', 'Audio5': '', 'Audio6': '', 'Audio7': '', 'Audio8': '', 'Audio9': '', 'Audio10': ''}
+        new_row = {'PlayList_Name': playlist_name, 'ID': len(df) + 1, 'User': username, 'Video1': '', 'Video2': '', 'Video3': '', 'Video4': '', 'Video5': '', 'Video6': '', 'Video7': '', 'Video8': '', 'Video9': '', 'Video10': '', 'Audio1': '', 'Audio2': '', 'Audio3': '', 'Audio4': '', 'Audio5': '', 'Audio6': '', 'Audio7': '', 'Audio8': '', 'Audio9': '', 'Audio10': ''}
         # Add the new row to the DataFrame
         df = df._append(new_row, ignore_index=True)
         # Save the updated DataFrame to the CSV file

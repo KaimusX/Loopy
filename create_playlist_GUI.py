@@ -16,7 +16,7 @@ def is_valid_youtube_url(url):
 # Authors: Shari Hoch and Luis Franco
 # Timestamp: 06/21/2024 1:26PM
 # Exp: When called, creates a pop out gui that allows user to input youtube links or file paths. please see bottom for data.
-def create_playlist():
+def create_playlist(username):
     video_entries = []
     MAX_INPUT_LENGTH = 2048
 
@@ -116,7 +116,7 @@ def create_playlist():
             # Handle the collected data here
             try:
                 playlist_database = pl.Playlist()
-                playlist_database.create_playlist(playlist_name)
+                playlist_database.create_playlist(playlist_name, username)
                 for entry in video_entries:
                     source, url_or_path = entry
                     dv.fileDownloader(url_or_path, source, playlist_name)

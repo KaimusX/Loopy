@@ -79,39 +79,23 @@ def update_frame(video, scr):
     return frame
 
 # Function to play a video from the playlist
-def Playlists():
+def Playlists(username):
         # Update the screen size
         pygame.init()
         width = 900
         height = 450
         scrn = pygame.display.set_mode([width, height])
         pygame.display.set_caption('LOOPY Video Player')
-        playlsit = Dropdown(scrn, 100, 100, create_user_list())
-        
-        # #is loop running
-        # run = True
-        # #is the next click a new press
-        # new_press = True
-        
-        # # Main loop
-        # while run:
-            
-        #     for event in pygame.event.get():
-        #         if event.type == pygame.QUIT:
-        #             run = False
-        #     pygame.display.flip()
-        
-        # # Clean up
-        # pygame.quit()
+        playlsit = Dropdown(scrn, 100, 100, create_user_list(username))
         return playlsit
 
-def create_user_list():
+def create_user_list(username):
     playlist_names = []
     
     with open('playlists.csv', 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if row['User'] == 'User1':
+            if row['User'] == username:
                 playlist_names.append(row['PlayList_Name'])
     print(playlist_names)
     return playlist_names

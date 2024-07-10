@@ -15,13 +15,13 @@ pygame.mixer.init()
 # Set font for buttons (assuming you are using PySimpleGUI for buttons)
 font = pygame.font.Font('freesansbold.ttf', 18)
 
-def create_user_list(user):
+def create_user_list(username):
     playlist_names = []
     
     with open('playlists.csv', 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            if row['User'] == user:
+            if row['User'] == username:
                 playlist_names.append(row['PlayList_Name'])
     return playlist_names
 
@@ -34,9 +34,9 @@ def isValidYoutube(url):
 
 
 # Function to create PySimpleGUI layout for playlists and buttons
-def create_layout(playlist_names):
+def create_layout(playlist_names, username):
     
-    playlist_names = create_user_list("User1")
+    playlist_names = create_user_list(username)
     
     layout = [
         [sg.Text('Select Playlist to Manage:')],
@@ -100,9 +100,9 @@ def update_playlist_videos(md5Hash):
 
 
 # Function to handle PySimpleGUI event loop
-def run_gui(playlist_names):
+def run_gui(playlist_names, username):
     sg.theme('LightGrey1')
-    window = sg.Window('Playlist Manager', create_layout(playlist_names))
+    window = sg.Window('Playlist Manager', create_layout(playlist_names, username))
     Loop = True
     while Loop:
         event, values = window.read()
@@ -124,9 +124,9 @@ def run_gui(playlist_names):
 
 
 # Main function to run the GUI application
-def main():
-    playlist_names = create_user_list("User1")
-    run_gui(playlist_names)
+def main(username):
+    playlist_names = create_user_list(username)
+    run_gui(playlist_names, username)
 
 if __name__ == '__main__':
     main()
