@@ -9,3 +9,7 @@ pandas
 regex
 opencv-python
 ffpyplayer
+Image
+ImageTK
+pyotp
+qrcode
