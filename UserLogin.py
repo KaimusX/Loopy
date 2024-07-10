@@ -61,7 +61,6 @@ class SimpleAccountManagerUI:
         elif UsersDatabase.UserAccount.checkUser(username, password) == "Success":
             self.master.destroy()
             Home_Page.Home(username)
-            #self.show_2fa_screen(username) # Go to 2FA to check it, then we can say success and let them through. We can maybe put the success on it's own function.
         elif UsersDatabase.UserAccount.checkUser(username, password) == "Invalid":
             counter += 1
             messagebox.showerror("Login", "Incorrect password.")
