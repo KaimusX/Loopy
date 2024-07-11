@@ -82,8 +82,9 @@ We welcome contributions from the community! To contribute to Loopy, follow thes
 Loopy is licensed under the MIT License. See the `LICENSE` file for more information.
 
 ## Names
+     Dr. Kari Lippert
      Luis Franco
-     Andrew Rupp
+     Andrew Rupp 
      Jonah Dalton
      Michael Lee
      Diego Alvarez
@@ -92,6 +93,10 @@ Loopy is licensed under the MIT License. See the `LICENSE` file for more informa
      Kaleigh Powell
      Natasha Menon
      David Seger
+     Shari Hoch
+     Anthony Whittembury
+     LaDarrien McCall
+     Anxhelo Kambo
 ---
 
 Thank you for using Loopy! We hope it enhances your video management experience.
